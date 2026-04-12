@@ -147,17 +147,8 @@ input[type=date]{color-scheme:light}
 </style>
 </head>
 <body>
-<div id="ov" style="display:none">
-  <div id="ob">
-    <h2>🔥 Firebase 연동 필수</h2>
-    <p>실시간 주문 공유를 위해 Firebase 연동이 <b>필수</b>입니다.<br>연동 없이는 앱을 사용할 수 없어요.</p>
-    <div class="step"><b>1단계 — Firebase 프로젝트 만들기</b><span><a href="https://console.firebase.google.com" target="_blank" style="color:#1a4e8a">console.firebase.google.com</a> → 프로젝트 추가 → 이름 입력 → 만들기</span></div>
-    <div class="step"><b>2단계 — Realtime Database 만들기</b><span>왼쪽 메뉴 → Realtime Database → 데이터베이스 만들기 → 테스트 모드 → 사용 설정</span></div>
-    <div class="step"><b>3단계 — URL 복사 후 아래 입력</b><span><code>https://프로젝트명-default-rtdb.firebaseio.com</code></span></div>
-    <input type="text" id="fbi" placeholder="https://your-project-default-rtdb.firebaseio.com">
-    <div id="fbc" onclick="doConnect()" style="width:100%;padding:13px;background:#1a1a1a;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;margin-top:10px;-webkit-tap-highlight-color:rgba(0,0,0,0.2);touch-action:manipulation;text-align:center;user-select:none;-webkit-user-select:none;">연결하기</div>
-  </div>
-</div>
+<div id="ov" style="display:none"></div>
+<input type="hidden" id="fbi" value="">
 
 <!-- 주문자 입력 모달 -->
 <div class="modal-bg" id="orderer-modal" style="display:none">
@@ -201,7 +192,7 @@ input[type=date]{color-scheme:light}
 
 <div class="topbar">
   <div><div class="logo">DM INTERNATIONAL</div><div class="logosub">발주 관리 시스템</div></div>
-  <div style="display:flex;align-items:center;gap:8px;font-size:11px;opacity:.8"><span id="cbdg" class="clo">로컬</span><span id="topright" style="opacity:.6">DAY:MEAN · ETOH</span></div>
+  <div style="display:flex;align-items:center;gap:8px;font-size:11px;opacity:.8"><span id="cbdg" class="con">실시간</span><span id="topright" style="opacity:.6">DAY:MEAN · ETOH</span></div>
 </div>
 <div class="layout">
   <div class="sidebar"><div id="sidenav"></div></div>
@@ -214,7 +205,7 @@ input[type=date]{color-scheme:light}
         <div class="rcard" onclick="showPg('pg-hqpw')"><div class="rico">🏢</div><div class="rlbl">본사 관리자</div><div class="rdesc">DM INTERNATIONAL</div></div>
         <div class="rcard" onclick="showPg('pg-bsel')"><div class="rico">✂️</div><div class="rlbl">지점 직원</div><div class="rdesc">DAY:MEAN · ETOH</div></div>
       </div>
-      <div id="conninfo" style="background:#f5f5f5;border-radius:10px;padding:14px;font-size:12px;color:#888;line-height:1.7">현재 <b style="color:#856404">로컬 저장 모드</b>입니다. <span style="color:#1a4e8a;cursor:pointer;text-decoration:underline" onclick="document.getElementById('ov').style.display='flex'">Firebase 연동</span>을 설정하면 실시간 공유가 가능해요.</div>
+      <div id="conninfo" style="background:#D4EDDA;border-radius:10px;padding:14px;font-size:12px;color:#155724;line-height:1.7"><b>실시간 연동 중</b> — 모든 기기에서 주문이 공유됩니다.</div>
     </div>
 
     <!-- 본사 비번 -->
@@ -489,15 +480,15 @@ function setConnected(){
   document.getElementById('ov').style.display='none';
 }
 function doConnect(){
+  // 항상 하드코딩된 Firebase URL 사용
   var url=document.getElementById('fbi').value.trim().replace(/\/+$/,'');
-  if(!url){alert('Firebase URL을 입력해주세요.');return;}
+  if(!url){url='https://dm-orders-4792a-default-rtdb.firebaseio.com';}
   if(!url.startsWith('https://')){url='https://'+url;}
   FBURL=url;localStorage.setItem(SK,url);useFB=true;
   setConnected();loadOrders().then(function(){updSubs();startPoll();});
 }
-function doSkip(){/* 로컬 모드 비활성화 - 사용 불가 */}
 (function init(){
-  // Firebase URL 자동 연결 (하드코딩)
+  // Firebase URL 하드코딩 — 무조건 실시간 모드
   var FIXED_URL='https://dm-orders-4792a-default-rtdb.firebaseio.com';
   FBURL=FIXED_URL;
   useFB=true;
@@ -591,9 +582,8 @@ function saveEdit(){
 function buildSideHQ(a){
   var h='<div class="nlbl">DM INTERNATIONAL</div>';
   [['pg-hq','📋 주문 목록'],['pg-stat','📊 통계'],['pg-dl','📥 엑셀 다운로드']].forEach(function(it){h+='<button class="nitem'+(a===it[0]?' on':'')+'" data-pg="'+it[0]+'">'+it[1]+'</button>';});
-  h+='<div class="ndiv"></div><button class="nitem" id="fbBtn">🔥 Firebase 설정</button><button class="nitem" id="logoutBtn">← 로그아웃</button>';
+  h+='<div class="ndiv"></div><button class="nitem" id="logoutBtn">← 로그아웃</button>';
   document.getElementById('sidenav').innerHTML=h;
-  document.getElementById('fbBtn').onclick=function(){document.getElementById('ov').style.display='flex';};
   document.getElementById('logoutBtn').onclick=doLogout;
   document.querySelectorAll('#sidenav .nitem[data-pg]').forEach(function(btn){btn.onclick=function(){hqTab(btn.dataset.pg);};});
 }
