@@ -155,7 +155,7 @@ input[type=date]{color-scheme:light}
     <div class="step"><b>2단계 — Realtime Database 만들기</b><span>왼쪽 메뉴 → Realtime Database → 데이터베이스 만들기 → 테스트 모드 → 사용 설정</span></div>
     <div class="step"><b>3단계 — URL 복사 후 아래 입력</b><span><code>https://프로젝트명-default-rtdb.firebaseio.com</code></span></div>
     <input type="text" id="fbi" placeholder="https://your-project-default-rtdb.firebaseio.com">
-    <button id="fbc" onclick="doConnect()">연결하기</button>
+    <button id="fbc" type="button" onclick="doConnect()">연결하기</button>
   </div>
 </div>
 
@@ -487,11 +487,11 @@ function setConnected(){
   document.getElementById('cbdg').className='con';
   document.getElementById('conninfo').innerHTML='<b style="color:#155724">실시간 연동 중</b> — 모든 기기에서 주문이 공유됩니다.';
   document.getElementById('ov').style.display='none';
-  document.getElementById('ov').style.display='none';
 }
 function doConnect(){
   var url=document.getElementById('fbi').value.trim().replace(/\/+$/,'');
-  if(!url.startsWith('https://')||!url.includes('firebaseio.com')){alert('올바른 Firebase URL을 입력해주세요.');return;}
+  if(!url){alert('Firebase URL을 입력해주세요.');return;}
+  if(!url.startsWith('https://')){url='https://'+url;}
   FBURL=url;localStorage.setItem(SK,url);useFB=true;
   setConnected();loadOrders().then(function(){updSubs();startPoll();});
 }
