@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>DM INTERNATIONAL 발주 관리</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f5;color:#1a1a1a;min-height:100vh}
+#setup-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:999;display:flex;align-items:center;justify-content:center;padding:16px}
+#setup-box{background:#fff;border-radius:16px;padding:28px 24px;max-width:480px;width:100%}
+#setup-box h2{font-size:17px;font-weight:700;margin-bottom:6px}
+#setup-box p{font-size:13px;color:#555;line-height:1.7;margin-bottom:14px}
+.setup-step{background:#f5f5f5;border-radius:10px;padding:14px;margin-bottom:10px}
+.setup-step b{font-size:12px;font-weight:700;color:#1a1a1a;display:block;margin-bottom:4px}
+.setup-step span{font-size:12px;color:#555;line-height:1.6}
+.setup-step code{background:#e8e8e8;padding:1px 5px;border-radius:4px;font-size:11px;font-family:monospace}
+#setup-box input{width:100%;padding:10px 12px;border:1px solid #ddd;border-radius:8px;font-size:13px;margin-top:10px;margin-bottom:4px}
+#setup-box input::placeholder{color:#aaa}
+#setup-confirm{width:100%;padding:13px;background:#1a1a1a;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;margin-top:10px}
+#setup-confirm:hover{opacity:.85}
+#setup-skip{width:100%;padding:10px;background:none;border:1px solid #ddd;border-radius:10px;font-size:13px;cursor:pointer;margin-top:6px;color:#555}
+#conn-badge{font-size:10px;padding:3px 8px;border-radius:20px;font-weight:600}
+.conn-on{background:#D4EDDA;color:#155724}
+.conn-local{background:#FFF3CD;color:#856404}
+.topbar{background:#1a1a1a;color:#fff;padding:12px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.logo{font-size:14px;font-weight:700;letter-spacing:.08em}
+.logosub{font-size:10px;opacity:.5;margin-top:1px}
+.topright{display:flex;align-items:center;gap:8px;font-size:11px;opacity:.8}
+.layout{display:grid;grid-template-columns:220px 1fr;min-height:calc(100vh - 48px)}
+@media(max-width:640px){.layout{grid-template-columns:1fr}.sidebar{display:none}.mob-nav{display:flex!important}.main{padding:16px;padding-bottom:80px}}
+.sidebar{background:#fff;border-right:1px solid #ebebeb;padding:16px 0;position:sticky;top:48px;height:calc(100vh - 48px);overflow-y:auto}
+.snav-label{font-size:10px;font-weight:700;color:#aaa;padding:10px 16px 4px;letter-spacing:.06em}
+.snav-item{display:flex;align-items:center;gap:8px;padding:10px 16px;cursor:pointer;font-size:13px;color:#555;border:none;background:none;width:100%;text-align:left}
+.snav-item:hover{background:#f5f5f5;color:#1a1a1a}
+.snav-item.on{background:#f0f0f0;color:#1a1a1a;font-weight:600;border-right:2px solid #1a1a1a}
+.snav-divider{height:1px;background:#ebebeb;margin:10px 0}
+.main{padding:24px;overflow-y:auto}
+.page{display:none;flex-direction:column;gap:16px}
+.page.on{display:flex}
+.ph{display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:4px}
+.ptitle{font-size:20px;font-weight:700;color:#1a1a1a}
+.psub{font-size:12px;color:#aaa;margin-top:2px}
+.sgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px}
+.sc{background:#fff;border:1px solid #ebebeb;border-radius:10px;padding:14px}
+.slb{font-size:11px;color:#aaa;margin-bottom:6px}
+.sv{font-size:24px;font-weight:700;color:#1a1a1a}
+.su{font-size:12px;color:#aaa;font-weight:400}
+.card{background:#fff;border:1px solid #ebebeb;border-radius:12px;padding:18px}
+.clabel{font-size:10px;font-weight:700;color:#aaa;margin-bottom:12px;letter-spacing:.05em}
+.oitem{border-bottom:1px solid #f2f2f2;padding:12px 0;display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.oitem:last-child{border-bottom:none;padding-bottom:0}
+.oitem:first-child{padding-top:0}
+.obr{font-size:13px;font-weight:600;color:#1a1a1a}
+.odt{font-size:11px;color:#aaa;margin-top:3px;line-height:1.5}
+.badge{font-size:10px;padding:3px 8px;border-radius:20px;font-weight:700;white-space:nowrap;flex-shrink:0}
+.sp{background:#FFF3CD;color:#856404}
+.si{background:#D1ECF1;color:#0C5460}
+.sd{background:#D4EDDA;color:#155724}
+.ofoot{display:flex;gap:6px;margin-top:10px}
+.abtn{flex:1;padding:7px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;text-align:center;border:1px solid #ddd;background:#f5f5f5;color:#1a1a1a}
+.abtn.pri{background:#1a1a1a;color:#fff;border-color:#1a1a1a}
+.pcard{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid #f2f2f2}
+.pcard:last-child{border-bottom:none;padding-bottom:0}
+.pcard:first-child{padding-top:0}
+.pico{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.pname{font-size:13px;font-weight:600;color:#1a1a1a}
+.punit{font-size:11px;color:#aaa;margin-top:1px}
+.qc{display:flex;align-items:center;gap:8px;margin-left:auto}
+.qbtn{width:28px;height:28px;border-radius:50%;border:1px solid #ddd;background:#f5f5f5;font-size:16px;cursor:pointer;color:#1a1a1a;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.qnum{font-size:14px;font-weight:700;min-width:22px;text-align:center;color:#1a1a1a}
+.sbtn{background:#1a1a1a;color:#fff;border:none;border-radius:10px;padding:14px;font-size:14px;font-weight:700;cursor:pointer;width:100%}
+.sbtn:hover{opacity:.85}
+.sbtn.sec{background:#fff;color:#1a1a1a;border:1px solid #ddd}
+.sbtn.green{background:#155724;color:#fff}
+select,input[type=date]{font-size:13px;padding:8px 10px;border:1px solid #ddd;border-radius:8px;background:#fff;color:#1a1a1a;width:100%}
+input[type=date]{color-scheme:light}
+.dlrow{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.dlrow label{font-size:12px;color:#aaa;width:44px;flex-shrink:0}
+.dlrow select,.dlrow input{flex:1}
+.quickbtns{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0}
+.qkbtn{flex:1;min-width:80px;padding:8px;font-size:12px;font-weight:600;border:1px solid #ddd;border-radius:8px;background:#f5f5f5;cursor:pointer;text-align:center}
+.toast{font-size:13px;padding:12px 16px;border-radius:10px;text-align:center;display:none;margin-top:8px}
+.toast.success{background:#D4EDDA;color:#155724}
+.mob-nav{display:none;background:#fff;border-top:1px solid #ebebeb;position:fixed;bottom:0;left:0;right:0;z-index:100;overflow-x:auto}
+.mob-nav-inner{display:flex;min-width:max-content}
+.mn-btn{padding:10px 16px 8px;font-size:11px;color:#aaa;cursor:pointer;background:none;border:none;white-space:nowrap;display:flex;flex-direction:column;align-items:center;gap:3px;min-width:70px}
+.mn-btn.on{color:#1a1a1a;font-weight:700}
+.mn-ico{font-size:18px}
+.shopbadge{font-size:10px;padding:2px 7px;border-radius:20px;font-weight:700}
+.dm{background:#E8F0FB;color:#1a4e8a}
+.et{background:#EDE8FB;color:#4a2e8a}
+.sel-item{background:#fff;border:1px solid #ebebeb;border-radius:10px;padding:14px 16px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.sel-item:hover{border-color:#1a1a1a}
+.sel-name{font-size:14px;font-weight:600;color:#1a1a1a}
+.sel-sub{font-size:11px;color:#aaa;margin-top:3px}
+.role-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.role-card{background:#fff;border:1px solid #ebebeb;border-radius:14px;padding:24px 16px;text-align:center;cursor:pointer}
+.role-card:hover{border-color:#1a1a1a}
+.rico{font-size:30px;margin-bottom:10px}
+.rlbl{font-size:15px;font-weight:700;color:#1a1a1a}
+.rdesc{font-size:11px;color:#aaa;margin-top:4px}
+.filter-row{display:flex;gap:8px;flex-wrap:wrap}
+.filter-row select{flex:1;min-width:110px}
+.brow{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.bmonth{font-size:11px;color:#aaa;width:80px;flex-shrink:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.btrack{flex:1;height:8px;background:#f0f0f0;border-radius:4px;overflow:hidden}
+.bfill{height:100%;border-radius:4px}
+.bnum{font-size:11px;color:#aaa;width:30px;text-align:right;flex-shrink:0}
+.empty{color:#ccc;font-size:13px;text-align:center;padding:28px 0}
+.loading{color:#aaa;font-size:13px;text-align:center;padding:28px 0}
+.new-badge{display:inline-block;background:#dc3545;color:#fff;font-size:9px;font-weight:700;padding:2px 5px;border-radius:10px;margin-left:4px;vertical-align:middle;animation:pulse 1.5s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+.section-gap{margin-top:8px}
+</style>
+</head>
+<body>
+<div id="setup-overlay">
+  <div id="setup-box">
+    <h2>🔥 실시간 연동 설정</h2>
+    <p>모든 기기에서 주문을 실시간으로 공유하려면<br>Firebase 무료 계정이 필요해요. <b>5분</b>이면 완료돼요!</p>
+    <div class="setup-step"><b>1단계 — Firebase 프로젝트 만들기</b><span><a href="https://console.firebase.google.com" target="_blank" style="color:#1a4e8a">console.firebase.google.com</a> 접속 → 프로젝트 추가 → 이름 입력(예: dm-orders) → 계속 → 프로젝트 만들기</span></div>
+    <div class="setup-step"><b>2단계 — Realtime Database 만들기</b><span>왼쪽 메뉴 → Realtime Database → 데이터베이스 만들기 → <code>테스트 모드로 시작</code> 선택 → 사용 설정</span></div>
+    <div class="setup-step"><b>3단계 — 데이터베이스 URL 복사</b><span>데이터베이스 화면 상단에 <code>https://프로젝트명-default-rtdb.firebaseio.com</code> 형식의 URL을 아래에 붙여넣어 주세요.</span></div>
+    <input type="text" id="fb-url-input" placeholder="https://your-project-default-rtdb.firebaseio.com">
+    <button id="setup-confirm" onclick="confirmSetup()">연결하기</button>
+    <button id="setup-skip" onclick="skipSetup()">지금은 건너뛰기 (기기 내 저장으로 사용)</button>
+  </div>
+</div>
+<div class="topbar">
+  <div><div class="logo">DM INTERNATIONAL</div><div class="logosub">발주 관리 시스템</div></div>
+  <div class="topright"><span id="conn-badge" class="conn-local">로컬</span><span id="TOP-RIGHT" style="opacity:.6">DAY:MEAN · ETOH</span></div>
+</div>
+<div class="layout">
+  <div class="sidebar" id="SIDEBAR"><div id="SIDE-CONTENT"></div></div>
+  <div class="main">
+    <div class="page on" id="p-login">
+      <div class="ph"><div><div class="ptitle">시작하기</div><div class="psub">역할을 선택해주세요</div></div></div>
+      <div class="role-grid">
+        <div class="role-card" onclick="goHQ()"><div class="rico">🏢</div><div class="rlbl">본사 관리자</div><div class="rdesc">DM INTERNATIONAL</div></div>
+        <div class="role-card" onclick="showPage('p-shopsel')"><div class="rico">✂️</div><div class="rlbl">지점 직원</div><div class="rdesc">DAY:MEAN · ETOH</div></div>
+      </div>
+      <div id="CONN-INFO" style="background:#f5f5f5;border-radius:10px;padding:14px;font-size:12px;color:#888;line-height:1.7">현재 <b style="color:#856404">로컬 저장 모드</b>입니다.<br>실시간 공유를 원하시면 <span style="color:#1a4e8a;cursor:pointer;text-decoration:underline" onclick="document.getElementById('setup-overlay').style.display='flex'">Firebase 연동</span>을 설정해주세요.</div>
+    </div>
+    <div class="page" id="p-shopsel">
+      <div class="ph"><div><div class="ptitle">지점 선택</div><div class="psub">소속 지점을 선택해주세요</div></div></div>
+      <div class="clabel">DAY:MEAN</div>
+      <div class="sel-item" onclick="selectBranch('DAY:MEAN','플래그십점')"><div><div class="sel-name">플래그십점 <span class="shopbadge dm">DAY:MEAN</span></div><div class="sel-sub" id="bs-플래그십점">로딩 중...</div></div><span style="color:#ccc;font-size:18px">›</span></div>
+      <div class="sel-item" onclick="selectBranch('DAY:MEAN','모먼트점')"><div><div class="sel-name">모먼트점 <span class="shopbadge dm">DAY:MEAN</span></div><div class="sel-sub" id="bs-모먼트점">로딩 중...</div></div><span style="color:#ccc;font-size:18px">›</span></div>
+      <div class="clabel section-gap">ETOH</div>
+      <div class="sel-item" onclick="selectBranch('ETOH','합정점')"><div><div class="sel-name">합정점 <span class="shopbadge et">ETOH</span></div><div class="sel-sub" id="bs-합정점">로딩 중...</div></div><span style="color:#ccc;font-size:18px">›</span></div>
+      <button class="sbtn sec" onclick="showPage('p-login')">← 뒤로</button>
+    </div>
+    <div class="page" id="p-order">
+      <div class="ph"><div><div class="ptitle" id="ORDER-TITLE">주문하기</div><div class="psub" id="ORDER-SUB"></div></div></div>
+      <div class="card">
+        <div class="clabel">헤어 제품</div>
+        <div class="pcard"><div class="pico" style="background:#EBF3FF">🧴</div><div><div class="pname">샴푸 (1000ml)</div><div class="punit">단위: 개</div></div><div class="qc"><button class="qbtn" onclick="chg('p1',-1)">−</button><span class="qnum" id="q-p1">0</span><button class="qbtn" onclick="chg('p1',1)">+</button></div></div>
+        <div class="pcard"><div class="pico" style="background:#E8F8F0">💆</div><div><div class="pname">트리트먼트 (500ml)</div><div class="punit">단위: 개</div></div><div class="qc"><button class="qbtn" onclick="chg('p2',-1)">−</button><span class="qnum" id="q-p2">0</span><button class="qbtn" onclick="chg('p2',1)">+</button></div></div>
+        <div class="pcard"><div class="pico" style="background:#FFF8E8">🎨</div><div><div class="pname">염색약 (80g)</div><div class="punit">단위: 튜브</div></div><div class="qc"><button class="qbtn" onclick="chg('p3',-1)">−</button><span class="qnum" id="q-p3">0</span><button class="qbtn" onclick="chg('p3',1)">+</button></div></div>
+        <div class="pcard"><div class="pico" style="background:#FFF0F8">🧴</div><div><div class="pname">린스 (1000ml)</div><div class="punit">단위: 개</div></div><div class="qc"><button class="qbtn" onclick="chg('p6',-1)">−</button><span class="qnum" id="q-p6">0</span><button class="qbtn" onclick="chg('p6',1)">+</button></div></div>
+      </div>
+      <div class="card">
+        <div class="clabel">소모품</div>
+        <div class="pcard"><div class="pico" style="background:#FFF0F5">🧤</div><div><div class="pname">위생 장갑 (100매)</div><div class="punit">단위: 박스</div></div><div class="qc"><button class="qbtn" onclick="chg('p4',-1)">−</button><span class="qnum" id="q-p4">0</span><button class="qbtn" onclick="chg('p4',1)">+</button></div></div>
+        <div class="pcard"><div class="pico" style="background:#F0F8E8">📋</div><div><div class="pname">호일 (500장)</div><div class="punit">단위: 롤</div></div><div class="qc"><button class="qbtn" onclick="chg('p5',-1)">−</button><span class="qnum" id="q-p5">0</span><button class="qbtn" onclick="chg('p5',1)">+</button></div></div>
+        <div class="pcard"><div class="pico" style="background:#F5F0FF">🧻</div><div><div class="pname">페이퍼 타월</div><div class="punit">단위: 묶음</div></div><div class="qc"><button class="qbtn" onclick="chg('p7',-1)">−</button><span class="qnum" id="q-p7">0</span><button class="qbtn" onclick="chg('p7',1)">+</button></div></div>
+      </div>
+      <button class="sbtn" onclick="submitOrder()">주문 요청하기</button>
+    </div>
+    <div class="page" id="p-mystatus">
+      <div class="ph"><div><div class="ptitle">내 주문현황</div><div class="psub" id="MY-SUB"></div></div></div>
+      <div class="card"><div id="MY-LIST"><div class="loading">로딩 중...</div></div></div>
+    </div>
+    <div class="page" id="p-orderdone">
+      <div style="text-align:center;padding:60px 20px">
+        <div style="font-size:52px;margin-bottom:18px">✅</div>
+        <div style="font-size:20px;font-weight:700;color:#1a1a1a;margin-bottom:10px">주문이 접수되었어요</div>
+        <div style="font-size:13px;color:#aaa;line-height:1.8">DM INTERNATIONAL에서<br>확인 후 처리해드릴게요</div>
+        <button class="sbtn" style="margin-top:32px;max-width:260px" onclick="backToBranch()">계속 주문하기</button>
+      </div>
+    </div>
+    <div class="page" id="p-hqorders">
+      <div class="ph">
+        <div><div class="ptitle">주문 목록</div><div class="psub" id="HQ-SUB">로딩 중...</div></div>
+        <div class="filter-row">
+          <select id="FILTER-SHOP" onchange="renderHQ()"><option value="전체">전체 브랜드</option><option value="DAY:MEAN">DAY:MEAN</option><option value="ETOH">ETOH</option></select>
+          <select id="FILTER-BRANCH" onchange="renderHQ()"><option value="전체">전체 지점</option><option value="플래그십점">플래그십점</option><option value="모먼트점">모먼트점</option><option value="합정점">합정점</option></select>
+          <select id="FILTER-STATUS" onchange="renderHQ()"><option value="전체">전체 상태</option><option value="대기중">대기중</option><option value="처리중">처리중</option><option value="완료">완료</option></select>
+        </div>
+      </div>
+      <div class="card"><div id="HQ-LIST"><div class="loading">로딩 중...</div></div></div>
+    </div>
+    <div class="page" id="p-stats">
+      <div class="ph"><div><div class="ptitle">통계 · 분석</div><div class="psub">전체 브랜드 발주 현황</div></div></div>
+      <div class="sgrid" id="STAT-CARDS"></div>
+      <div class="card"><div class="clabel">브랜드별 발주 건수</div><div id="BRAND-BARS"></div></div>
+      <div class="card"><div class="clabel">품목별 누적 발주 수량</div><div id="ITEM-BARS"></div></div>
+      <div class="card"><div class="clabel">월별 발주 건수 (최근 6개월)</div><div id="MONTH-BARS"></div></div>
+    </div>
+    <div class="page" id="p-download">
+      <div class="ph"><div><div class="ptitle">엑셀 다운로드</div><div class="psub">기간·조건 설정 후 다운로드</div></div></div>
+      <div class="card">
+        <div class="clabel">조건 설정</div>
+        <div class="dlrow"><label>시작일</label><input type="date" id="DL-FROM"></div>
+        <div class="dlrow"><label>종료일</label><input type="date" id="DL-TO"></div>
+        <div class="dlrow"><label>브랜드</label><select id="DL-SHOP"><option value="전체">전체</option><option value="DAY:MEAN">DAY:MEAN</option><option value="ETOH">ETOH</option></select></div>
+        <div class="dlrow"><label>지점</label><select id="DL-BRANCH"><option value="전체">전체</option><option value="플래그십점">플래그십점</option><option value="모먼트점">모먼트점</option><option value="합정점">합정점</option></select></div>
+        <div class="dlrow"><label>상태</label><select id="DL-STATUS"><option value="전체">전체</option><option value="대기중">대기중</option><option value="처리중">처리중</option><option value="완료">완료</option></select></div>
+        <div class="quickbtns"><div class="qkbtn" onclick="setRange('month')">이번 달</div><div class="qkbtn" onclick="setRange('year')">올해 전체</div><div class="qkbtn" onclick="setRange('all')">전체 기간</div></div>
+        <button class="sbtn green" onclick="doDownload()">📥 엑셀 파일 다운로드</button>
+        <div class="toast success" id="TOAST">✅ 파일이 다운로드되었어요!</div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="mob-nav" id="MOB-NAV" style="display:none"><div class="mob-nav-inner" id="MOB-INNER"></div></div>
+<script>
+const PRODUCTS={p1:'샴푸(1000ml)',p2:'트리트먼트(500ml)',p3:'염색약(80g)',p4:'위생장갑(100매)',p5:'호일(500장)',p6:'린스(1000ml)',p7:'페이퍼타월'};
+const STORAGE_KEY='dmi_fb_url';
+const LOCAL_KEY='dmi_local_v2';
+let FB_URL='',useFirebase=false,allOrders=[],qty={p1:0,p2:0,p3:0,p4:0,p5:0,p6:0,p7:0},curShop='',curBranch='',curRole='',pollTimer=null;
+async function fbGet(p){const r=await fetch(FB_URL+p+'.json');if(!r.ok)throw new Error('FB GET 실패');return r.json();}
+async function fbPush(p,d){const r=await fetch(FB_URL+p+'.json',{method:'POST',body:JSON.stringify(d)});if(!r.ok)throw new Error('FB POST 실패');return r.json();}
+async function fbPatch(p,d){await fetch(FB_URL+p+'.json',{method:'PATCH',body:JSON.stringify(d)});}
+async function fbDelete(p){await fetch(FB_URL+p+'.json',{method:'DELETE'});}
+async function loadOrders(){if(useFirebase){try{const d=await fbGet('/orders');allOrders=d?Object.entries(d).map(([k,v])=>({...v,fbKey:k})):[];}catch(e){allOrders=getLocal();}}else{allOrders=getLocal();}return allOrders;}
+function startPolling(){if(pollTimer)clearInterval(pollTimer);if(!useFirebase)return;pollTimer=setInterval(async()=>{await loadOrders();const cp=document.querySelector('.page.on')?.id;if(cp==='p-hqorders')renderHQ();if(cp==='p-mystatus')renderMy();if(cp==='p-stats')renderStats();updateBranchSubs();},8000);}
+function getLocal(){try{return JSON.parse(localStorage.getItem(LOCAL_KEY)||'[]')}catch(e){return[]}}
+function saveLocal(o){try{localStorage.setItem(LOCAL_KEY,JSON.stringify(o))}catch(e){}}
+function confirmSetup(){const url=document.getElementById('fb-url-input').value.trim().replace(/\/+$/,'');if(!url.startsWith('https://')||!url.includes('firebaseio.com')){alert('올바른 Firebase URL을 입력해주세요.');return;}FB_URL=url;localStorage.setItem(STORAGE_KEY,url);useFirebase=true;document.getElementById('setup-overlay').style.display='none';document.getElementById('conn-badge').textContent='실시간';document.getElementById('conn-badge').className='conn-on';document.getElementById('CONN-INFO').innerHTML='<b style="color:#155724">실시간 연동 중</b> — 모든 기기에서 주문이 공유됩니다.';loadOrders().then(()=>{updateBranchSubs();startPolling();});}
+function skipSetup(){document.getElementById('setup-overlay').style.display='none';loadOrders().then(updateBranchSubs);}
+(function init(){const saved=localStorage.getItem(STORAGE_KEY);if(saved){FB_URL=saved;useFirebase=true;document.getElementById('fb-url-input').value=saved;document.getElementById('conn-badge').textContent='실시간';document.getElementById('conn-badge').className='conn-on';document.getElementById('CONN-INFO').innerHTML='<b style="color:#155724">실시간 연동 중</b>';document.getElementById('setup-overlay').style.display='none';loadOrders().then(()=>{updateBranchSubs();startPolling();});}else{loadOrders().then(updateBranchSubs);}})();
+function showPage(id){document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));document.getElementById(id).classList.add('on');window.scrollTo(0,0);}
+function itemSummary(items){return Object.entries(items).map(([k,v])=>PRODUCTS[k]+' '+v+'개').join(', ');}
+async function updateBranchSubs(){const orders=allOrders.length?allOrders:await loadOrders();const now=new Date();const ym=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0');['플래그십점','모먼트점','합정점'].forEach(b=>{const el=document.getElementById('bs-'+b);if(el){const cnt=orders.filter(o=>o.branch===b&&o.date&&o.date.startsWith(ym)).length;el.textContent='이번 달 주문 '+cnt+'건';}});}
+function goHQ(){curRole='hq';document.getElementById('TOP-RIGHT').textContent='본사 관리자';setSideHQ('p-hqorders');setMobHQ('p-hqorders');renderHQ();showPage('p-hqorders');}
+function setSideHQ(a){document.getElementById('SIDE-CONTENT').innerHTML='<div class="snav-label">DM INTERNATIONAL</div><button class="snav-item '+(a==='p-hqorders'?'on':'')+'" onclick="hqTab('p-hqorders')">📋 주문 목록</button><button class="snav-item '+(a==='p-stats'?'on':'')+'" onclick="hqTab('p-stats')">📊 통계 · 분석</button><button class="snav-item '+(a==='p-download'?'on':'')+'" onclick="hqTab('p-download')">📥 엑셀 다운로드</button><div class="snav-divider"></div><button class="snav-item" onclick="document.getElementById('setup-overlay').style.display='flex'">🔥 Firebase 설정</button><button class="snav-item" onclick="logout()">← 로그아웃</button>';}
+function setMobHQ(a){document.getElementById('MOB-NAV').style.display='block';document.getElementById('MOB-INNER').innerHTML='<button class="mn-btn '+(a==='p-hqorders'?'on':'')+'" onclick="hqTab('p-hqorders')"><span class="mn-ico">📋</span>주문목록</button><button class="mn-btn '+(a==='p-stats'?'on':'')+'" onclick="hqTab('p-stats')"><span class="mn-ico">📊</span>통계</button><button class="mn-btn '+(a==='p-download'?'on':'')+'" onclick="hqTab('p-download')"><span class="mn-ico">📥</span>다운로드</button><button class="mn-btn" onclick="logout()"><span class="mn-ico">←</span>나가기</button>';}
+async function hqTab(id){setSideHQ(id);setMobHQ(id);showPage(id);await loadOrders();if(id==='p-hqorders')renderHQ();if(id==='p-stats')renderStats();if(id==='p-download')initDL();}
+function selectBranch(shop,branch){curShop=shop;curBranch=branch;curRole='branch';document.getElementById('ORDER-TITLE').textContent=branch+' 주문하기';document.getElementById('ORDER-SUB').textContent=shop;document.getElementById('MY-SUB').textContent=shop+' · '+branch;document.getElementById('TOP-RIGHT').textContent=shop+' '+branch;setSideBranch('p-order');setMobBranch('p-order');showPage('p-order');}
+function setSideBranch(a){const bc=curShop==='DAY:MEAN'?'dm':'et';document.getElementById('SIDE-CONTENT').innerHTML='<div class="snav-label">내 지점</div><div style="padding:8px 16px;font-size:12px;font-weight:700;color:#1a1a1a">'+curBranch+' <span class="shopbadge '+bc+'">'+curShop+'</span></div><div class="snav-divider"></div><button class="snav-item '+(a==='p-order'?'on':'')+'" onclick="brTab('p-order')">🛒 주문하기</button><button class="snav-item '+(a==='p-mystatus'?'on':'')+'" onclick="brTab('p-mystatus')">📋 내 주문현황</button><div class="snav-divider"></div><button class="snav-item" onclick="logout()">← 로그아웃</button>';}
+function setMobBranch(a){document.getElementById('MOB-NAV').style.display='block';document.getElementById('MOB-INNER').innerHTML='<button class="mn-btn '+(a==='p-order'?'on':'')+'" onclick="brTab('p-order')"><span class="mn-ico">🛒</span>주문하기</button><button class="mn-btn '+(a==='p-mystatus'?'on':'')+'" onclick="brTab('p-mystatus')"><span class="mn-ico">📋</span>내 주문</button><button class="mn-btn" onclick="logout()"><span class="mn-ico">←</span>나가기</button>';}
+async function brTab(id){setSideBranch(id);setMobBranch(id);showPage(id);if(id==='p-mystatus'){await loadOrders();renderMy();}}
+function logout(){curRole='';curShop='';curBranch='';if(pollTimer){clearInterval(pollTimer);pollTimer=null;}document.getElementById('MOB-NAV').style.display='none';document.getElementById('SIDE-CONTENT').innerHTML='';document.getElementById('TOP-RIGHT').textContent='DAY:MEAN · ETOH';showPage('p-login');}
+function chg(id,d){qty[id]=Math.max(0,qty[id]+d);document.getElementById('q-'+id).textContent=qty[id];}
+async function submitOrder(){const items={};Object.keys(qty).forEach(k=>{if(qty[k]>0)items[k]=qty[k];});if(!Object.keys(items).length){alert('수량을 하나 이상 입력해주세요');return;}const order={shop:curShop,branch:curBranch,date:new Date().toISOString().slice(0,10),ts:Date.now(),items,status:'대기중'};if(useFirebase){try{await fbPush('/orders',order);}catch(e){alert('주문 저장 실패');return;}}else{const local=getLocal();local.push({...order,id:Date.now()});saveLocal(local);allOrders=local;}Object.keys(qty).forEach(k=>{qty[k]=0;const el=document.getElementById('q-'+k);if(el)el.textContent=0;});setSideBranch('p-orderdone');setMobBranch('p-orderdone');showPage('p-orderdone');await loadOrders();updateBranchSubs();}
+function backToBranch(){selectBranch(curShop,curBranch);}
+function renderMy(){const orders=allOrders.filter(o=>o.branch===curBranch&&o.shop===curShop).sort((a,b)=>(b.ts||0)-(a.ts||0));const el=document.getElementById('MY-LIST');if(!orders.length){el.innerHTML='<div class="empty">주문 내역이 없어요</div>';return;}el.innerHTML=orders.map(o=>'<div class="oitem"><div><div class="obr">'+o.date+' 주문</div><div class="odt">'+itemSummary(o.items)+'</div></div><span class="badge '+(o.status==='대기중'?'sp':o.status==='처리중'?'si':'sd')+'">'+o.status+'</span></div>').join('');}
+async function renderHQ(){const sf=document.getElementById('FILTER-SHOP').value;const bf=document.getElementById('FILTER-BRANCH').value;const stf=document.getElementById('FILTER-STATUS').value;let orders=[...allOrders].sort((a,b)=>(b.ts||0)-(a.ts||0));const pending=orders.filter(o=>o.status==='대기중').length;document.getElementById('HQ-SUB').textContent='대기 '+pending+'건';if(sf!=='전체')orders=orders.filter(o=>o.shop===sf);if(bf!=='전체')orders=orders.filter(o=>o.branch===bf);if(stf!=='전체')orders=orders.filter(o=>o.status===stf);const el=document.getElementById('HQ-LIST');if(!orders.length){el.innerHTML='<div class="empty">해당 조건의 주문이 없어요</div>';return;}el.innerHTML=orders.map(o=>'<div class="oitem"><div style="flex:1;min-width:0"><div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:3px"><span class="obr">'+o.branch+'</span><span class="shopbadge '+(o.shop==='DAY:MEAN'?'dm':'et')+'">'+o.shop+'</span><span class="badge '+(o.status==='대기중'?'sp':o.status==='처리중'?'si':'sd')+'">'+o.status+'</span>'+(o.status==='대기중'?'<span class="new-badge">NEW</span>':'')+'</div><div class="odt">'+o.date+' · '+itemSummary(o.items)+'</div>'+(o.status==='대기중'?'<div class="ofoot"><div class="abtn" onclick="updSt(''+( o.fbKey||o.id)+'','취소')">거절</div><div class="abtn pri" onclick="updSt(''+(o.fbKey||o.id)+'','처리중')">발주 확정</div></div>':'')+(o.status==='처리중'?'<div class="ofoot"><div class="abtn pri" onclick="updSt(''+(o.fbKey||o.id)+'','완료')">배송 완료 처리</div></div>':'')+'</div></div>').join('');}
+async function updSt(key,st){if(useFirebase){try{if(st==='취소')await fbDelete('/orders/'+key);else await fbPatch('/orders/'+key,{status:st});}catch(e){alert('업데이트 실패');return;}}else{const local=getLocal();const idx=local.findIndex(o=>String(o.id)===String(key));if(idx<0)return;if(st==='취소')local.splice(idx,1);else local[idx].status=st;saveLocal(local);allOrders=local;}await loadOrders();renderHQ();}
+function renderStats(){const orders=allOrders;const now=new Date();const ym=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0');const mo=orders.filter(o=>o.date&&o.date.startsWith(ym));document.getElementById('STAT-CARDS').innerHTML='<div class="sc"><div class="slb">이번 달 발주</div><div class="sv">'+mo.length+'<span class="su"> 건</span></div></div><div class="sc"><div class="slb">처리 완료</div><div class="sv">'+orders.filter(o=>o.status==='완료').length+'<span class="su"> 건</span></div></div><div class="sc"><div class="slb">대기 중</div><div class="sv" style="color:#856404">'+orders.filter(o=>o.status==='대기중').length+'<span class="su"> 건</span></div></div><div class="sc"><div class="slb">전체 발주</div><div class="sv">'+orders.length+'<span class="su"> 건</span></div></div>';const brands={'DAY:MEAN':0,'ETOH':0};orders.forEach(o=>{if(brands[o.shop]!==undefined)brands[o.shop]++;});const maxB=Math.max(...Object.values(brands),1);document.getElementById('BRAND-BARS').innerHTML=Object.entries(brands).map(([b,v])=>'<div class="brow"><span class="bmonth">'+b+'</span><div class="btrack"><div class="bfill" style="width:'+Math.round(v/maxB*100)+'%;background:'+(b==='DAY:MEAN'?'#2C5F8A':'#6B4C8A')+'"></div></div><span class="bnum">'+v+'</span></div>').join('');const totals={};Object.keys(PRODUCTS).forEach(k=>totals[k]=0);orders.forEach(o=>o.items&&Object.entries(o.items).forEach(([k,v])=>{if(totals[k]!==undefined)totals[k]+=v;}));const maxI=Math.max(...Object.values(totals),1);document.getElementById('ITEM-BARS').innerHTML=Object.entries(totals).sort((a,b)=>b[1]-a[1]).map(([k,v])=>'<div class="brow"><span class="bmonth">'+PRODUCTS[k].split('(')[0]+'</span><div class="btrack"><div class="bfill" style="width:'+Math.round(v/maxI*100)+'%;background:#1a1a1a"></div></div><span class="bnum">'+v+'</span></div>').join('');const mmap={};for(let i=5;i>=0;i--){const d=new Date(now.getFullYear(),now.getMonth()-i,1);const key=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');mmap[key]=0;}orders.forEach(o=>{const m=o.date&&o.date.slice(0,7);if(m&&mmap[m]!==undefined)mmap[m]++;});const maxM=Math.max(...Object.values(mmap),1);document.getElementById('MONTH-BARS').innerHTML=Object.entries(mmap).map(([m,v])=>'<div class="brow"><span class="bmonth">'+m.slice(5)+'월</span><div class="btrack"><div class="bfill" style="width:'+Math.round(v/maxM*100)+'%;background:#1a1a1a"></div></div><span class="bnum">'+v+'</span></div>').join('');}
+function initDL(){const now=new Date();const y=now.getFullYear(),mo=String(now.getMonth()+1).padStart(2,'0'),d=String(now.getDate()).padStart(2,'0');document.getElementById('DL-FROM').value=y+'-'+mo+'-01';document.getElementById('DL-TO').value=y+'-'+mo+'-'+d;}
+function setRange(r){const now=new Date();const y=now.getFullYear(),mo=String(now.getMonth()+1).padStart(2,'0'),d=String(now.getDate()).padStart(2,'0');if(r==='month'){document.getElementById('DL-FROM').value=y+'-'+mo+'-01';document.getElementById('DL-TO').value=y+'-'+mo+'-'+d;}else if(r==='year'){document.getElementById('DL-FROM').value=y+'-01-01';document.getElementById('DL-TO').value=y+'-'+mo+'-'+d;}else{document.getElementById('DL-FROM').value='2024-01-01';document.getElementById('DL-TO').value=y+'-'+mo+'-'+d;}}
+async function doDownload(){await loadOrders();const from=document.getElementById('DL-FROM').value;const to=document.getElementById('DL-TO').value;const sh=document.getElementById('DL-SHOP').value;const br=document.getElementById('DL-BRANCH').value;const st=document.getElementById('DL-STATUS').value;let orders=allOrders.filter(o=>{if(!o.date||o.date<from||o.date>to)return false;if(sh!=='전체'&&o.shop!==sh)return false;if(br!=='전체'&&o.branch!==br)return false;if(st!=='전체'&&o.status!==st)return false;return true;}).sort((a,b)=>a.date.localeCompare(b.date));if(!orders.length){alert('해당 조건의 주문이 없어요');return;}const rows=[['날짜','브랜드','지점','품목','수량','상태']];orders.forEach(o=>o.items&&Object.entries(o.items).forEach(([k,v])=>rows.push([o.date,o.shop,o.branch,PRODUCTS[k],v,o.status])));if(typeof XLSX!=='undefined'){const wb=XLSX.utils.book_new();const ws=XLSX.utils.aoa_to_sheet(rows);ws['!cols']=[{wch:12},{wch:12},{wch:10},{wch:20},{wch:8},{wch:8}];XLSX.utils.book_append_sheet(wb,ws,'발주내역');const sum=[['브랜드','지점','품목','총수량']];const tot={};orders.forEach(o=>o.items&&Object.entries(o.items).forEach(([k,v])=>{const key=o.shop+'|'+o.branch+'|'+k;tot[key]=(tot[key]||0)+v;}));Object.entries(tot).forEach(([k,v])=>{const[s,b,p]=k.split('|');sum.push([s,b,PRODUCTS[p],v]);});const ws2=XLSX.utils.aoa_to_sheet(sum);XLSX.utils.book_append_sheet(wb,ws2,'품목별합계');XLSX.writeFile(wb,'DM발주내역_'+from+'_'+to+'.xlsx');}const t=document.getElementById('TOAST');t.style.display='block';setTimeout(()=>t.style.display='none',3000);}
+</script>
+</body>
+</html>
