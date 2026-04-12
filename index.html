@@ -25,7 +25,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:#f5f5f5;
 .logo{font-size:14px;font-weight:700;letter-spacing:.08em}
 .logosub{font-size:10px;opacity:.5;margin-top:1px}
 .layout{display:grid;grid-template-columns:220px 1fr;min-height:calc(100vh - 48px)}
-@media(max-width:640px){.layout{grid-template-columns:1fr}.sidebar{display:none}.mobnav{display:flex!important}.main{padding:16px;padding-bottom:140px}}
+@media(max-width:640px){.layout{grid-template-columns:1fr}.sidebar{display:none}.mobnav{display:flex!important}.main{padding:16px;padding-bottom:80px}.order-btn-wrap{position:fixed;bottom:52px;left:0;right:0;padding:10px 16px;background:#f5f5f5;z-index:99;box-shadow:0 -2px 8px rgba(0,0,0,.08)}.order-btn-wrap .summary-box{max-height:100px;overflow-y:auto}}
 .sidebar{background:#fff;border-right:1px solid #ebebeb;padding:16px 0;position:sticky;top:48px;height:calc(100vh - 48px);overflow-y:auto}
 .nlbl{font-size:10px;font-weight:700;color:#aaa;padding:10px 16px 4px;letter-spacing:.06em}
 .nitem{display:flex;align-items:center;gap:8px;padding:10px 16px;cursor:pointer;font-size:13px;color:#555;border:none;background:none;width:100%;text-align:left}
@@ -266,11 +266,13 @@ input[type=date]{color-scheme:light}
         <div class="clbl">소모품 / 도구</div>
         <div id="bipum-list"></div>
       </div>
-      <div class="summary-box">
-        <div class="summary-title">🛒 현재 주문 목록</div>
-        <div id="bipum-summary-items"><div class="summary-empty">선택한 항목이 없어요</div></div>
+      <div class="order-btn-wrap">
+        <div class="summary-box" style="margin-bottom:8px">
+          <div class="summary-title">🛒 현재 주문 목록</div>
+          <div id="bipum-summary-items"><div class="summary-empty">선택한 항목이 없어요</div></div>
+        </div>
+        <button class="gbtn" onclick="doOrder()">주문 요청하기</button>
       </div>
-      <button class="gbtn" onclick="doOrder()">주문 요청하기</button>
     </div>
 
     <!-- 제품 주문 -->
@@ -282,11 +284,13 @@ input[type=date]{color-scheme:light}
       <div class="brand-tabs" id="brand-tabs"></div>
       <!-- 제품 목록 -->
       <div id="jepum-list"></div>
-      <div class="summary-box">
-        <div class="summary-title">🛒 현재 주문 목록</div>
-        <div id="jepum-summary-items"><div class="summary-empty">선택한 항목이 없어요</div></div>
+      <div class="order-btn-wrap">
+        <div class="summary-box" style="margin-bottom:8px">
+          <div class="summary-title">🛒 현재 주문 목록</div>
+          <div id="jepum-summary-items"><div class="summary-empty">선택한 항목이 없어요</div></div>
+        </div>
+        <button class="gbtn" onclick="doOrder()">주문 요청하기</button>
       </div>
-      <button class="gbtn" onclick="doOrder()">주문 요청하기</button>
     </div>
 
     <!-- 내 주문현황 -->
@@ -1064,6 +1068,25 @@ function doDownload(){
     var t=document.getElementById('toast');t.style.display='block';setTimeout(function(){t.style.display='none';},3000);
   });
 }
+// ── 모바일 하단 고정영역 높이만큼 padding 자동 조정 ──
+function adjustBottomPadding(){
+  if(window.innerWidth>640)return;
+  var wraps=document.querySelectorAll('.order-btn-wrap');
+  var mainEl=document.querySelector('.main');
+  if(!mainEl)return;
+  var maxH=0;
+  wraps.forEach(function(w){
+    var pg=w.closest('.pg');
+    if(pg&&pg.classList.contains('on')){
+      maxH=Math.max(maxH,w.offsetHeight);
+    }
+  });
+  mainEl.style.paddingBottom=(maxH+70)+'px';
+}
+window.addEventListener('resize',adjustBottomPadding);
+var _origShowPg=showPg;
+showPg=function(id){_origShowPg(id);setTimeout(adjustBottomPadding,50);};
+setInterval(adjustBottomPadding,500);
 </script>
 </body>
 </html>
