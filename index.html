@@ -8,8 +8,8 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:#f5f5f5;color:#1a1a1a;min-height:100vh}
-#ov{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:999;display:flex;align-items:center;justify-content:center;padding:16px}
-#ob{background:#fff;border-radius:16px;padding:28px 24px;max-width:480px;width:100%}
+#ov{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px}
+#ob{background:#fff;border-radius:16px;padding:28px 24px;max-width:480px;width:100%;position:relative;z-index:1000}
 #ob h2{font-size:17px;font-weight:700;margin-bottom:6px}
 #ob p{font-size:13px;color:#555;line-height:1.7;margin-bottom:14px}
 .step{background:#f5f5f5;border-radius:10px;padding:14px;margin-bottom:10px}
@@ -17,7 +17,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:#f5f5f5;
 .step span,.step a{font-size:12px;color:#555;line-height:1.6}
 .step code{background:#e8e8e8;padding:1px 5px;border-radius:4px;font-size:11px}
 #fbi{width:100%;padding:10px 12px;border:1px solid #ddd;border-radius:8px;font-size:13px;margin-top:10px;margin-bottom:4px}
-#fbc{width:100%;padding:13px;background:#1a1a1a;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;margin-top:10px}
+#fbc{width:100%;padding:13px;background:#1a1a1a;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;margin-top:10px;-webkit-tap-highlight-color:rgba(0,0,0,0.2);touch-action:manipulation}
 #fbs{width:100%;padding:10px;background:none;border:1px solid #ddd;border-radius:10px;font-size:13px;cursor:pointer;margin-top:6px;color:#555}
 #cbdg{font-size:10px;padding:3px 8px;border-radius:20px;font-weight:600}
 .con{background:#D4EDDA;color:#155724}.clo{background:#FFF3CD;color:#856404}
@@ -500,8 +500,17 @@ function doSkip(){/* 로컬 모드 비활성화 - 사용 불가 */}
   var s=localStorage.getItem(SK);
   if(s){FBURL=s;useFB=true;document.getElementById('fbi').value=s;setConnected();loadOrders().then(function(){updSubs();startPoll();});}
   else{
-    // Firebase 미설정 → 팝업 강제 표시, 닫기 불가
     document.getElementById('ov').style.display='flex';
+  }
+  // 버튼 이벤트 확실히 바인딩 (iOS Safari 대응)
+  var fbcBtn=document.getElementById('fbc');
+  if(fbcBtn){
+    fbcBtn.addEventListener('click',function(e){e.preventDefault();doConnect();},false);
+    fbcBtn.addEventListener('touchend',function(e){e.preventDefault();doConnect();},false);
+  }
+  var fbiInput=document.getElementById('fbi');
+  if(fbiInput){
+    fbiInput.addEventListener('keydown',function(e){if(e.key==='Enter'||e.keyCode===13){e.preventDefault();doConnect();}});
   }
 })();
 function showPg(id){document.querySelectorAll('.pg').forEach(function(p){p.classList.remove('on');});document.getElementById(id).classList.add('on');window.scrollTo(0,0);}
