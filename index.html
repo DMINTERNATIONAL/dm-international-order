@@ -823,8 +823,8 @@ function renderHQ(){
     if(o.deliveryDate){delHtml='<span style="margin-left:6px">'+(o.deliveryDate==='확인불가'?'<span class="del-na">배송일: 확인 불가</span>':'<span class="del-date">배송일: '+o.deliveryDate+'</span>')+'</span>';}
     var f='';
     if(o.status==='대기중')f='<div class="ofoot"><div class="abtn red" data-key="'+key+'" data-st="취소">거절</div><div class="abtn pri" onclick="openConfirmModal(\''+key+'\')">발주 확정</div></div>';
-    if(o.status==='배송중')f='<div class="ofoot"><div class="abtn org" onclick="revertOrder(''+key+'')">발주취소</div><div class="abtn pri" data-key="'+key+'" data-st="완료">배송 완료</div></div>';
-    if(o.status==='완료')f='<div class="ofoot"><div class="abtn org" onclick="revertOrder(''+key+'')">발주취소</div></div>';
+    if(o.status==='배송중')f='<div class="ofoot"><div class="abtn org" onclick="revertOrder(\''+key+'\')">발주취소</div><div class="abtn pri" data-key="'+key+'" data-st="완료">배송 완료</div></div>';
+    if(o.status==='완료')f='<div class="ofoot"><div class="abtn org" onclick="revertOrder(\''+key+'\')">발주취소</div></div>';
     return'<div class="oitem"><div style="flex:1;min-width:0"><div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:3px"><span class="obr">'+o.branch+'</span><span class="shopbdg '+sc+'">'+o.shop+'</span>'+(o.orderer?'<span style="font-size:11px;color:#555">✍️ '+o.orderer+'</span>':'')+'<span class="bdg '+bs+'">'+o.status+'</span>'+(o.status==='대기중'?'<span class="newbdg">NEW</span>':'')+delHtml+'</div><div class="odt">'+o.date+' · '+isum(o.items)+'</div>'+f+'</div></div>';
   }).join('');
   document.querySelectorAll('#hqlist .abtn[data-key]').forEach(function(btn){btn.onclick=function(){updSt(btn.dataset.key,btn.dataset.st);};});
