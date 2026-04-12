@@ -155,7 +155,7 @@ input[type=date]{color-scheme:light}
     <div class="step"><b>2단계 — Realtime Database 만들기</b><span>왼쪽 메뉴 → Realtime Database → 데이터베이스 만들기 → 테스트 모드 → 사용 설정</span></div>
     <div class="step"><b>3단계 — URL 복사 후 아래 입력</b><span><code>https://프로젝트명-default-rtdb.firebaseio.com</code></span></div>
     <input type="text" id="fbi" placeholder="https://your-project-default-rtdb.firebaseio.com">
-    <button id="fbc" type="button" onclick="doConnect()">연결하기</button>
+    <div id="fbc" onclick="doConnect()" style="width:100%;padding:13px;background:#1a1a1a;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;margin-top:10px;-webkit-tap-highlight-color:rgba(0,0,0,0.2);touch-action:manipulation;text-align:center;user-select:none;-webkit-user-select:none;">연결하기</div>
   </div>
 </div>
 
@@ -497,21 +497,14 @@ function doConnect(){
 }
 function doSkip(){/* 로컬 모드 비활성화 - 사용 불가 */}
 (function init(){
-  var s=localStorage.getItem(SK);
-  if(s){FBURL=s;useFB=true;document.getElementById('fbi').value=s;setConnected();loadOrders().then(function(){updSubs();startPoll();});}
-  else{
-    document.getElementById('ov').style.display='flex';
-  }
-  // 버튼 이벤트 확실히 바인딩 (iOS Safari 대응)
-  var fbcBtn=document.getElementById('fbc');
-  if(fbcBtn){
-    fbcBtn.addEventListener('click',function(e){e.preventDefault();doConnect();},false);
-    fbcBtn.addEventListener('touchend',function(e){e.preventDefault();doConnect();},false);
-  }
-  var fbiInput=document.getElementById('fbi');
-  if(fbiInput){
-    fbiInput.addEventListener('keydown',function(e){if(e.key==='Enter'||e.keyCode===13){e.preventDefault();doConnect();}});
-  }
+  // Firebase URL 자동 연결 (하드코딩)
+  var FIXED_URL='https://dm-orders-4792a-default-rtdb.firebaseio.com';
+  FBURL=FIXED_URL;
+  useFB=true;
+  localStorage.setItem(SK,FIXED_URL);
+  document.getElementById('fbi').value=FIXED_URL;
+  setConnected();
+  loadOrders().then(function(){updSubs();startPoll();});
 })();
 function showPg(id){document.querySelectorAll('.pg').forEach(function(p){p.classList.remove('on');});document.getElementById(id).classList.add('on');window.scrollTo(0,0);}
 function updSubs(){
