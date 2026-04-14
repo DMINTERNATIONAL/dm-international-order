@@ -25,7 +25,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:#f5f5f5;
 .logo{font-size:14px;font-weight:700;letter-spacing:.08em}
 .logosub{font-size:10px;opacity:.5;margin-top:1px}
 .layout{display:grid;grid-template-columns:220px 1fr;min-height:calc(100vh - 48px)}
-@media(max-width:640px){.layout{grid-template-columns:1fr}.sidebar{display:none}.mobnav{display:flex!important}.main{padding:16px;padding-bottom:80px}.order-btn-wrap{position:fixed;bottom:52px;left:0;right:0;padding:10px 16px;background:#f5f5f5;z-index:99;box-shadow:0 -2px 8px rgba(0,0,0,.08)}.order-btn-wrap .summary-box{max-height:100px;overflow-y:auto}}
+@media(max-width:640px){.layout{grid-template-columns:1fr}.sidebar{display:none}.mobnav{display:flex!important}.main{padding:16px;padding-bottom:80px}}
 .sidebar{background:#fff;border-right:1px solid #ebebeb;padding:16px 0;position:sticky;top:48px;height:calc(100vh - 48px);overflow-y:auto}
 .nlbl{font-size:10px;font-weight:700;color:#aaa;padding:10px 16px 4px;letter-spacing:.06em}
 .nitem{display:flex;align-items:center;gap:8px;padding:10px 16px;cursor:pointer;font-size:13px;color:#555;border:none;background:none;width:100%;text-align:left}
@@ -137,13 +137,36 @@ input[type=date]{color-scheme:light}
 .cat-tag{font-size:10px;background:#e8f0fb;color:#1a4e8a;padding:1px 5px;border-radius:4px;margin-right:4px}
 /* 모달 */
 .modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:500;display:flex;align-items:center;justify-content:center;padding:20px}
-.modal-box{background:#fff;border-radius:16px;padding:24px;max-width:380px;width:100%}
+.modal-box{background:#fff;border-radius:16px;padding:24px;max-width:380px;width:100%;-webkit-overflow-scrolling:touch}
+.modal-box input[type=text]{-webkit-user-select:text;user-select:text;touch-action:manipulation;cursor:text}
 .modal-box h4{font-size:16px;font-weight:700;margin-bottom:8px}
 .modal-box p{font-size:13px;color:#555;margin-bottom:16px;line-height:1.6}
 .modal-btns{display:flex;gap:8px}
 /* 배송일 배지 */
 .del-date{font-size:11px;background:#e8f5e9;color:#2e7d32;padding:2px 8px;border-radius:10px;font-weight:600}
 .del-na{font-size:11px;background:#fff3e0;color:#e65100;padding:2px 8px;border-radius:10px;font-weight:600}
+
+/* 카테고리 태그 컬러 */
+.cat-tag.c-bipum{background:#FFF3E0;color:#E65100}
+.cat-tag.c-산화제{background:#E8F5E9;color:#1B5E20}
+.cat-tag.c-샴푸{background:#E3F2FD;color:#0D47A1}
+.cat-tag.c-염모제{background:#FCE4EC;color:#880E4F}
+.cat-tag.c-점판{background:#EDE7F6;color:#4527A0}
+.cat-tag.c-클리닉{background:#E0F7FA;color:#006064}
+.cat-tag.c-탈색{background:#FFFDE7;color:#F57F17}
+.cat-tag.c-펌{background:#F3E5F5;color:#6A1B9A}
+/* 카테고리 탭 */
+.cat-tab-bar{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px}
+.cat-tab-btn{padding:5px 12px;border-radius:20px;font-size:11px;font-weight:700;cursor:pointer;border:1.5px solid #ddd;background:#f8f8f8;color:#555;transition:all .15s;flex-shrink:0}
+.cat-tab-btn.on{border-color:#1a1a1a;background:#1a1a1a;color:#fff}
+.cat-tab-btn.cb-bipum{border-color:#E65100}.cat-tab-btn.cb-bipum.on{background:#E65100;border-color:#E65100}
+.cat-tab-btn.cb-산화제{border-color:#2E7D32}.cat-tab-btn.cb-산화제.on{background:#2E7D32;border-color:#2E7D32}
+.cat-tab-btn.cb-샴푸{border-color:#1565C0}.cat-tab-btn.cb-샴푸.on{background:#1565C0;border-color:#1565C0}
+.cat-tab-btn.cb-염모제{border-color:#AD1457}.cat-tab-btn.cb-염모제.on{background:#AD1457;border-color:#AD1457}
+.cat-tab-btn.cb-점판{border-color:#4527A0}.cat-tab-btn.cb-점판.on{background:#4527A0;border-color:#4527A0}
+.cat-tab-btn.cb-클리닉{border-color:#00838F}.cat-tab-btn.cb-클리닉.on{background:#00838F;border-color:#00838F}
+.cat-tab-btn.cb-탈색{border-color:#F9A825}.cat-tab-btn.cb-탈색.on{background:#F9A825;border-color:#F9A825;color:#333}
+.cat-tab-btn.cb-펌{border-color:#6A1B9A}.cat-tab-btn.cb-펌.on{background:#6A1B9A;border-color:#6A1B9A}
 </style>
 </head>
 <body>
@@ -164,7 +187,7 @@ input[type=date]{color-scheme:light}
   <div class="modal-box">
     <h4>✍️ 주문자 이름</h4>
     <p>주문자 이름을 입력해주세요</p>
-    <input type="text" id="orderer-input" placeholder="이름 입력" maxlength="20" style="margin-bottom:14px">
+    <input type="text" id="orderer-input" placeholder="이름 입력" maxlength="20" style="margin-bottom:14px;-webkit-user-select:text;user-select:text;touch-action:manipulation;">
     <div class="modal-btns">
       <button class="gbtn sec" style="flex:1" onclick="closeOrdererModal()">취소</button>
       <button class="gbtn" style="flex:1" onclick="confirmOrderer()">확인</button>
@@ -262,35 +285,41 @@ input[type=date]{color-scheme:light}
     <!-- 비품 주문 -->
     <div class="pg" id="pg-bipum">
       <div class="ph"><div><div class="ptitle">비품 주문</div><div class="psub" id="bipum-sub"></div></div></div>
-      <div class="card">
-        <div class="clbl">소모품 / 도구</div>
-        <div id="bipum-list"></div>
+      <!-- 거래처 탭 -->
+      <div class="sup-tabs" id="bipum-sup-tabs"></div>
+      <!-- 브랜드 탭 -->
+      <div class="brand-tabs" id="bipum-brand-tabs"></div>
+      <!-- 카테고리 탭 (비품은 카테고리 없으므로 숨김) -->
+      <div class="cat-tab-bar" id="bipum-cat-tabs" style="display:none"></div>
+      <!-- 검색창 -->
+      <input type="text" id="bipum-search" placeholder="🔍 비품 검색..." oninput="renderBipum()" style="margin-bottom:10px;font-size:13px;">
+      <!-- 비품 목록 -->
+      <div id="bipum-list"></div>
+      <div class="summary-box">
+        <div class="summary-title">🛒 현재 주문 목록</div>
+        <div id="bipum-summary-items"><div class="summary-empty">선택한 항목이 없어요</div></div>
       </div>
-      <div class="order-btn-wrap">
-        <div class="summary-box" style="margin-bottom:8px">
-          <div class="summary-title">🛒 현재 주문 목록</div>
-          <div id="bipum-summary-items"><div class="summary-empty">선택한 항목이 없어요</div></div>
-        </div>
-        <button class="gbtn" onclick="doOrder()">주문 요청하기</button>
-      </div>
+      <button class="gbtn" onclick="doOrder()">주문 요청하기</button>
     </div>
 
     <!-- 제품 주문 -->
     <div class="pg" id="pg-jepum">
       <div class="ph"><div><div class="ptitle">제품 주문</div><div class="psub" id="jepum-sub"></div></div></div>
+      <!-- 제품 검색 -->
+      <input type="text" id="jepum-search" placeholder="🔍 제품명 검색..." oninput="renderJepum()" style="margin-bottom:10px;font-size:13px;">
+      <!-- 카테고리 탭 -->
+      <div class="cat-tab-bar" id="cat-tab-bar"></div>
       <!-- 거래처 탭 (상단 가로) -->
       <div class="sup-tabs" id="sup-tabs"></div>
       <!-- 브랜드 필터 -->
       <div class="brand-tabs" id="brand-tabs"></div>
       <!-- 제품 목록 -->
       <div id="jepum-list"></div>
-      <div class="order-btn-wrap">
-        <div class="summary-box" style="margin-bottom:8px">
-          <div class="summary-title">🛒 현재 주문 목록</div>
-          <div id="jepum-summary-items"><div class="summary-empty">선택한 항목이 없어요</div></div>
-        </div>
-        <button class="gbtn" onclick="doOrder()">주문 요청하기</button>
+      <div class="summary-box">
+        <div class="summary-title">🛒 현재 주문 목록</div>
+        <div id="jepum-summary-items"><div class="summary-empty">선택한 항목이 없어요</div></div>
       </div>
+      <button class="gbtn" onclick="doOrder()">주문 요청하기</button>
     </div>
 
     <!-- 내 주문현황 -->
@@ -444,17 +473,52 @@ var BIPUM=['위생 장갑 (100매)','호일 (500장)','페이퍼 타월','스폰
 
 // ── 제품 데이터 ──
 var JEPUM={
-  '나푸키아':{'나푸키아':[{cat:'샴푸/트리트먼트',name:'트리트먼트'}]},
-  '레삐':{'레삐':[{cat:'스타일링',name:'매트 왁스'},{cat:'스타일링',name:'큐티클 워터'},{cat:'스타일링',name:'포마드 왁스'}]},
-  '로레알':{'로레알':[{cat:'산화제',name:'다이아 산화제 9vol(2.7%)'},{cat:'산화제',name:'블론드 산화제 20vol(6%)'},{cat:'산화제',name:'블론드 산화제 30vol(9%)'},{cat:'산화제',name:'알루리아 산화제 20vol(6%)'},{cat:'산화제',name:'알루리아 산화제 (6%)'},{cat:'산화제',name:'크림 산화제 20vol(6%)'},{cat:'산화제',name:'크림 산화제 30vol(9%)'},{cat:'샴푸/트리트먼트',name:'메탈 디엑스 마스크'},{cat:'샴푸/트리트먼트',name:'메탈 디엑스 샴푸'},{cat:'샴푸/트리트먼트',name:'메탈 디엑스 프리 트리트먼트'},{cat:'샴푸/트리트먼트',name:'세리 비타미노 마스크'},{cat:'샴푸/트리트먼트',name:'세리 비타미노 샴푸'},{cat:'샴푸/트리트먼트',name:'세리 실버 샴푸'},{cat:'샴푸/트리트먼트',name:'세리 앱솔루트 리페어 샴푸'},{cat:'샴푸/트리트먼트',name:'세리 펌프'},{cat:'염모제',name:'마지패션 12.11'},{cat:'염모제',name:'마지패션 12.3'},{cat:'염모제',name:'마지패션 12.4'},{cat:'염모제',name:'마지패션 12.7'},{cat:'염모제',name:'마지패션 2.10'},{cat:'염모제',name:'마지패션 4.20'},{cat:'염모제',name:'마지패션 5.62'},{cat:'염모제',name:'마지패션 6.01(울트라파스텔)'},{cat:'염모제',name:'마지패션 6.07'},{cat:'염모제',name:'마지패션 6.11(울트라파스텔)'},{cat:'염모제',name:'마지패션 6.23'},{cat:'염모제',name:'마지패션 6.66'},{cat:'염모제',name:'마지패션 7.42'},{cat:'염모제',name:'마지패션 라커 10.21'},{cat:'염모제',name:'마지패션 라커 9.21'},{cat:'염모제',name:'마지패션 라커 9.22'},{cat:'염모제',name:'마지패션 라커 9.3'},{cat:'염모제',name:'마지패션 바이브런트 7.44'},{cat:'염모제',name:'마지패션 부스터 .11'},{cat:'염모제',name:'마지패션 부스터 그린'},{cat:'염모제',name:'마지패션 부스터 레드'},{cat:'염모제',name:'마지패션 부스터 바이올렛'},{cat:'염모제',name:'마지패션 부스터 카퍼(코퍼)'},{cat:'염모제',name:'마지패션 블루(부스터 믹스)'},{cat:'염모제',name:'마지패션 파스텔 12.5'},{cat:'염모제',name:'마지패션 파스텔 12.6'},{cat:'염모제',name:'마지패션 파스텔 12.62'},{cat:'염모제',name:'알루리아 10 베이지'},{cat:'염모제',name:'알루리아 10 실버'},{cat:'염모제',name:'알루리아 5 매트 브라운'},{cat:'염모제',name:'알루리아 5 애쉬 브라운'},{cat:'염모제',name:'알루리아 6 실버'},{cat:'염모제',name:'알루리아 7 매트 브라운'},{cat:'염모제',name:'알루리아 7 애쉬 브라운'},{cat:'염모제',name:'알루리아 8 베이지'},{cat:'염모제',name:'알루리아 9 매트 브라운'},{cat:'염모제',name:'이노아 4.20'},{cat:'탈색약',name:'블론드 스튜디오7 (페이스트)'}]},
-  '뷰티월드':{'기타':[{cat:'비품',name:'개나리장파지'},{cat:'비품',name:'귀마개(이어캡/투명)'}],'니제르':[{cat:'스타일링',name:'스윙무브'},{cat:'스타일링',name:'홀드핏'}],'밀본':[{cat:'비품',name:'호일 워크 브러쉬'},{cat:'스타일링',name:'서포트오일'},{cat:'염모제',name:'염모제'},{cat:'클리닉제',name:'마이포스 NO.1'},{cat:'클리닉제',name:'마이포스 NO.2'},{cat:'펌제',name:'네오리시오 2제(크림)'},{cat:'펌제',name:'네오리시오 H 1제'},{cat:'펌제',name:'네오리시오 N 1제'},{cat:'펌제',name:'네오리시오 SH 1제'},{cat:'펌제',name:'네오리시오 아쿠아컬 H 1제'},{cat:'펌제',name:'네오리시오 아쿠아컬 N 1제'},{cat:'펌제',name:'네오리시오 아쿠아컬 SH 1제'},{cat:'펌제',name:'네오리시오 알칼리 리듀스(AR)'}],'뷰티월드':[{cat:'비품',name:'레이첼 RACHEL 헤어클립'},{cat:'비품',name:'스폰지'},{cat:'비품',name:'염색붓'},{cat:'비품',name:'오히로 부직포'},{cat:'비품',name:'오히로 파지'},{cat:'비품',name:'핀컬핀'},{cat:'스타일링',name:'데미 우에보 쥬카라 캐러메이크 휩 3'},{cat:'클리닉제',name:'나투리아 케라틴 엑스트라 스트레이트'},{cat:'클리닉제',name:'드베 콜라겐 PH 버퍼'},{cat:'클리닉제',name:'링플러스투 링수분팩'},{cat:'클리닉제',name:'파스타 퍼팩트리무버'},{cat:'클리닉제',name:'헤어보톡스 ASAI-OIL'},{cat:'펌제',name:'네오리시오AS 4.5'},{cat:'펌제',name:'네오리시오AS 6.5'},{cat:'펌제',name:'뷰티옴므 다운 울트라펌'}],'데미':[{cat:'염모제',name:'염모제'}]},
-  '서프라리스':{'서프라리스':[{cat:'펌제',name:'수분펌'},{cat:'펌제',name:'콜드펌'}]},
-  '아모스':{'아모스':[{cat:'산화제',name:'1.5% 산화제'},{cat:'산화제',name:'3% 산화제'},{cat:'산화제',name:'6% 산화제'},{cat:'산화제',name:'9% 산화제'},{cat:'샴푸/트리트먼트',name:'딥클린 샴푸'},{cat:'샴푸/트리트먼트',name:'시카 앰플트리트먼트'},{cat:'샴푸/트리트먼트',name:'아쿠아밸런싱마스크'},{cat:'스타일링',name:'네츄럴 왁스'},{cat:'스타일링',name:'디자인 스프레이'},{cat:'스타일링',name:'매트 왁스'},{cat:'스타일링',name:'폴리시 텍스처라이저'},{cat:'염모제',name:'IA 염색제 11 라벤더 베이지'},{cat:'염모제',name:'IA 염색제 11 클래식블루'},{cat:'염모제',name:'IA 염색제 13 라벤더 베이지'},{cat:'염모제',name:'IA 염색제 13 메탈릭 실버'},{cat:'염모제',name:'IA 염색제 13 베이직브라운'},{cat:'염모제',name:'IA 염색제 13 파인그린'},{cat:'염모제',name:'IA 염색제 13 플럼핑크'},{cat:'염모제',name:'IA 염색제 5 라벤더 베이지'},{cat:'염모제',name:'IA 염색제 5 베이직브라운'},{cat:'염모제',name:'IA 염색제 7 라벤더 베이지'},{cat:'염모제',name:'IA 염색제 7 베이직브라운'},{cat:'염모제',name:'IA 염색제 7 파인그린'},{cat:'염모제',name:'IA 염색제 9 그레이지'},{cat:'염모제',name:'IA 염색제 9 라벤더 베이지'},{cat:'염모제',name:'IA 염색제 9 메탈릭 실버'},{cat:'염모제',name:'IA 염색제 9 파인그린'},{cat:'염모제',name:'IA 염색제 9 플럼 핑크'},{cat:'염모제',name:'IG 염색제 9YB'},{cat:'염모제',name:'TS 염색제 1.0'},{cat:'염모제',name:'TS 염색제 3.0'},{cat:'염모제',name:'TS 염색제 5.0'},{cat:'염모제',name:'TS 염색제 5.00'},{cat:'염모제',name:'TS 염색제 7.00'},{cat:'클리닉제',name:'너리싱샷 CMC'},{cat:'클리닉제',name:'루미네이터 CPR'},{cat:'클리닉제',name:'루미네이터 EX(강모)'},{cat:'클리닉제',name:'루미네이터 H(건강모)'},{cat:'클리닉제',name:'루미네이터 MC'},{cat:'클리닉제',name:'시카 인텐시브크림'},{cat:'클리닉제',name:'퀵 본드'},{cat:'클리닉제',name:'하이퍼 피피티'},{cat:'탈색약',name:'블론드 블리치'},{cat:'탈색약',name:'하이 블리치'},{cat:'펌제',name:'실키 블루밍 펌'},{cat:'펌제',name:'아쿠아인플러스 중화제'},{cat:'펌제',name:'액상 중화제'},{cat:'펌제',name:'에센셜 시스테인펌'},{cat:'펌제',name:'크림 중화제'},{cat:'펌제',name:'피앤피 치오펌'}]},
-  '아윤채':{'아윤채':[{cat:'샴푸/트리트먼트',name:'더마 카밍 마일드 샴푸'},{cat:'샴푸/트리트먼트',name:'더마 카밍 스칼프 마스크'},{cat:'샴푸/트리트먼트',name:'리밸런싱 프레시 샴푸'},{cat:'스타일링',name:'실키 오일'},{cat:'스타일링',name:'프로 히트 프로텍터'},{cat:'스타일링',name:'프로폴리쉬오일'},{cat:'클리닉제',name:'리밸런싱 스칼프 세럼'},{cat:'클리닉제',name:'스파클링 에센스'}]},
-  '아트코르':{'아트코르':[{cat:'클리닉제',name:'뉴케라틴 (신데렐라 대체)'}]},
-  '커리쉴':{'커리쉴':[{cat:'스타일링',name:'새틴에어리스프레이'},{cat:'스타일링',name:'젤오일왁스'}]},
-  '프로아':{'미엘':[{cat:'염모제',name:'블론디앤 틴트 라임'},{cat:'염모제',name:'블론디앤 틴트 민트'},{cat:'염모제',name:'블론디앤 틴트 바이올렛'},{cat:'염모제',name:'블론디앤 틴트 스카이블루'},{cat:'염모제',name:'블론디앤 틴트 울트라바이올렛'},{cat:'염모제',name:'블론디앤 틴트 핑크레드'}],'뷰티원':[{cat:'클리닉제',name:'멜라닌크 스퀴드리무버'}],'사사키':[{cat:'샴푸/트리트먼트',name:'컬러플러스 마카롱 브라운 보색샴푸'},{cat:'염모제',name:'15-00 (라이트너)'},{cat:'염모제',name:'오센틱 OFF THE BLACK (오프 더 블랙)'},{cat:'염모제',name:'틴트 그린'},{cat:'염모제',name:'틴트 레드'},{cat:'염모제',name:'틴트 바이올렛'},{cat:'염모제',name:'틴트 블루'},{cat:'염모제',name:'틴트 애쉬'},{cat:'염모제',name:'틴트 핑크'}],'새롬':[{cat:'펌제',name:'키스해링 볼륨 매직 ST 크림중화제'},{cat:'펌제',name:'키스해링 볼륨 매직 ST-건강'}],'새범':[{cat:'비품',name:'티라노 쪼아핀셋'}],'어반트라이브':[{cat:'스타일링',name:'02.31 하이드레이트 리브인폼'}]},
-  '헤메코':{'어네이즈':[{cat:'샴푸/트리트먼트',name:'리브인콜라겐세럼 트리트먼트'}],'에이루아':[{cat:'스타일링',name:'폴리쉬오일'}],'컬루어':[{cat:'샴푸/트리트먼트',name:'데일리 보색 샴푸'},{cat:'샴푸/트리트먼트',name:'레드 토닝 샴푸'},{cat:'샴푸/트리트먼트',name:'빈티지 핑크 토닝 샴푸'},{cat:'샴푸/트리트먼트',name:'애쉬바이올렛 토닝 샴푸'},{cat:'샴푸/트리트먼트',name:'피치코랄 토닝 샴푸'}],'헤메코':[{cat:'스타일링',name:'잔머리카라'}]}
+  '나푸키아':{
+    '나푸키아':[{cat:'샴푸/트리트먼트',name:'나푸키아 트리트먼트 (비매품)'}],
+  },
+  '레삐':{
+    '레삐':[{cat:'점판 제품',name:'매트 왁스'},{cat:'점판 제품',name:'큐티클 워터'},{cat:'점판 제품',name:'포마드 왁스'}],
+  },
+  '로레알':{
+    '로레알':[{cat:'산화제',name:'다이아 산화제 9vol(2.7%)'},{cat:'산화제',name:'블론드 산화제 20vol(6%)'},{cat:'산화제',name:'블론드 산화제 30vol(9%)'},{cat:'산화제',name:'알루리아 산화제 20vol(6%)'},{cat:'산화제',name:'알루리아 산화제 (6%)'},{cat:'산화제',name:'크림 산화제 20vol(6%)'},{cat:'산화제',name:'크림 산화제 30vol(9%)'},{cat:'샴푸/트리트먼트',name:'메탈 디엑스 마스크 (비매품)'},{cat:'점판 제품',name:'메탈 디엑스 샴푸 (점판용)'},{cat:'샴푸/트리트먼트',name:'메탈 디엑스 샴푸 (비매품)'},{cat:'점판 제품',name:'메탈 디엑스 프리 트리트먼트 (점판용)'},{cat:'샴푸/트리트먼트',name:'세리 비타미노 마스크 (비매품)'},{cat:'점판 제품',name:'세리 비타미노 샴푸 (점판용)'},{cat:'샴푸/트리트먼트',name:'세리 비타미노 샴푸 (비매품)'},{cat:'점판 제품',name:'세리 실버 샴푸 (점판용)'},{cat:'샴푸/트리트먼트',name:'세리 실버 샴푸 (비매품)'},{cat:'점판 제품',name:'세리 앱솔루트 리페어 샴푸 (점판용)'},{cat:'샴푸/트리트먼트',name:'세리 앱솔루트 리페어 샴푸 (비매품)'},{cat:'샴푸/트리트먼트',name:'세리 펌프 (비매품)'},{cat:'염모제',name:'마지패션 12.11'},{cat:'염모제',name:'마지패션 12.3'},{cat:'염모제',name:'마지패션 12.4'},{cat:'염모제',name:'마지패션 12.7'},{cat:'염모제',name:'마지패션 2.10'},{cat:'염모제',name:'마지패션 4.20'},{cat:'염모제',name:'마지패션 5.62'},{cat:'염모제',name:'마지패션 6.01(울트라파스텔)'},{cat:'염모제',name:'마지패션 6.07'},{cat:'염모제',name:'마지패션 6.11(울트라파스텔)'},{cat:'염모제',name:'마지패션 6.23'},{cat:'염모제',name:'마지패션 6.66'},{cat:'염모제',name:'마지패션 7.42'},{cat:'염모제',name:'마지패션 라커 10.21'},{cat:'염모제',name:'마지패션 라커 9.21'},{cat:'염모제',name:'마지패션 라커 9.22'},{cat:'염모제',name:'마지패션 라커 9.3'},{cat:'염모제',name:'마지패션 바이브런트 7.44'},{cat:'염모제',name:'마지패션 부스터 .11'},{cat:'염모제',name:'마지패션 부스터 그린'},{cat:'염모제',name:'마지패션 부스터 레드'},{cat:'염모제',name:'마지패션 부스터 바이올렛'},{cat:'염모제',name:'마지패션 부스터 카퍼(코퍼)'},{cat:'염모제',name:'마지패션 블루(부스터 믹스)'},{cat:'염모제',name:'마지패션 파스텔 12.5'},{cat:'염모제',name:'마지패션 파스텔 12.6'},{cat:'염모제',name:'마지패션 파스텔 12.62'},{cat:'염모제',name:'알루리아 10 베이지'},{cat:'염모제',name:'알루리아 10 실버'},{cat:'염모제',name:'알루리아 5 매트 브라운'},{cat:'염모제',name:'알루리아 5 애쉬 브라운'},{cat:'염모제',name:'알루리아 6 실버'},{cat:'염모제',name:'알루리아 7 매트 브라운'},{cat:'염모제',name:'알루리아 7 애쉬 브라운'},{cat:'염모제',name:'알루리아 8 베이지'},{cat:'염모제',name:'알루리아 9 매트 브라운'},{cat:'염모제',name:'이노아 4.20'},{cat:'탈색약',name:'블론드 스튜디오7 (페이스트)',unit:16}],
+  },
+  '뷰티월드':{
+    '기타':[{cat:'비품',name:'개나리장파지'},{cat:'비품',name:'귀마개(이어캡/투명)'}],
+    '밀본':[{cat:'점판 제품',name:'스윙무브 스프레이'},{cat:'점판 제품',name:'홀드핏 스프레이'},{cat:'비품',name:'호일 워크 브러쉬'},{cat:'클리닉제',name:'마이포스 NO.1'},{cat:'클리닉제',name:'마이포스 NO.2'},{cat:'펌제',name:'네오리시오 2제(크림)'},{cat:'펌제',name:'네오리시오 H 1제'},{cat:'펌제',name:'네오리시오 N 1제'},{cat:'펌제',name:'네오리시오 SH 1제'},{cat:'펌제',name:'네오리시오 아쿠아컬 H 1제'},{cat:'펌제',name:'네오리시오 아쿠아컬 N 1제'},{cat:'펌제',name:'네오리시오 아쿠아컬 SH 1제'},{cat:'펌제',name:'네오리시오 알칼리 리듀스(AR)'}],
+    '뷰티월드':[{cat:'비품',name:'레이첼 RACHEL 헤어클립'},{cat:'비품',name:'스폰지'},{cat:'비품',name:'염색붓'},{cat:'비품',name:'오히로 부직포'},{cat:'비품',name:'오히로 파지'},{cat:'비품',name:'핀컬핀'},{cat:'점판 제품',name:'데미 우에보 쥬카라 캐러메이크 휩 3 작은 사이즈 (점판용)'},{cat:'점판 제품',name:'데미 우에보 쥬카라 캐러메이크 휩 3 큰 사이즈 (점판용)'},{cat:'클리닉제',name:'나투리아 케라틴 엑스트라 스트레이트'},{cat:'클리닉제',name:'드베 콜라겐 PH 버퍼'},{cat:'클리닉제',name:'링플러스투 링수분팩'},{cat:'클리닉제',name:'파스타 퍼팩트리무버'},{cat:'펌제',name:'네오리시오AS 4.5'},{cat:'펌제',name:'네오리시오AS 6.5'},{cat:'펌제',name:'뷰티옴므 다운 울트라펌'}],
+  },
+  '서프라리스':{
+    '서프라리스':[{cat:'펌제',name:'수분펌'},{cat:'펌제',name:'콜드펌'}],
+  },
+  '아윤채':{
+    '아윤채':[{cat:'샴푸/트리트먼트',name:'더마 카밍 마일드 샴푸 (비매품)'},{cat:'점판 제품',name:'더마 카밍 스칼프 마스크 (점판용)'},{cat:'샴푸/트리트먼트',name:'리밸런싱 프레시 샴푸 (비매품)'},{cat:'점판 제품',name:'실키 오일 (점판용)'},{cat:'점판 제품',name:'프로 히트 프로텍터 (점판용)'},{cat:'점판 제품',name:'프로폴리쉬오일 (점판용)'},{cat:'클리닉제',name:'리밸런싱 스칼프 세럼'},{cat:'클리닉제',name:'스파클링 에센스'}],
+  },
+  '아트코르':{
+    '아트코르':[{cat:'클리닉제',name:'뉴케라틴 (신데렐라 대체)'}],
+  },
+  '커리쉴':{
+    '커리쉴':[{cat:'점판 제품',name:'새틴에어리스프레이'},{cat:'점판 제품',name:'젤오일왁스 (점판용)'}],
+  },
+  '프로아':{
+    '미엘':[{cat:'염모제',name:'블론디앤 틴트 라임'},{cat:'염모제',name:'블론디앤 틴트 민트'},{cat:'염모제',name:'블론디앤 틴트 바이올렛'},{cat:'염모제',name:'블론디앤 틴트 스카이블루'},{cat:'염모제',name:'블론디앤 틴트 울트라바이올렛'},{cat:'염모제',name:'블론디앤 틴트 핑크레드'}],
+    '뷰티원':[{cat:'클리닉제',name:'멜라닌크 스퀴드리무버'}],
+    '사사키':[{cat:'점판 제품',name:'컬러플러스 마카롱 브라운 보색샴푸 (점판용)'},{cat:'염모제',name:'15-00 (라이트너)'},{cat:'염모제',name:'오센틱 OFF THE BLACK (오프 더 블랙)'},{cat:'염모제',name:'틴트 그린'},{cat:'염모제',name:'틴트 레드'},{cat:'염모제',name:'틴트 바이올렛'},{cat:'염모제',name:'틴트 블루'},{cat:'염모제',name:'틴트 애쉬'},{cat:'염모제',name:'틴트 핑크'}],
+    '새롬':[{cat:'펌제',name:'키스해링 볼륨 매직 ST 크림중화제'},{cat:'펌제',name:'키스해링 볼륨 매직 ST-건강'}],
+    '새범':[{cat:'비품',name:'티라노 쪼아핀셋'}],
+    '어반트라이브':[{cat:'점판 제품',name:'하이드레이트 리브인폼'}],
+  },
+  '헤메코':{
+    '어네이즈':[{cat:'샴푸/트리트먼트',name:'리브인콜라겐세럼 트리트먼트'}],
+    '에이루아':[{cat:'점판 제품',name:'더 터치 이클립스레버리 폴리쉬오일 (점판용)',unit:40}],
+    '컬루어':[{cat:'점판 제품',name:'데일리 보색 샴푸 (점판용)'},{cat:'점판 제품',name:'레드 토닝 샴푸 (점판용)'},{cat:'점판 제품',name:'빈티지 핑크 토닝 샴푸 (점판용)'},{cat:'점판 제품',name:'애쉬바이올렛 토닝 샴푸 (점판용)'},{cat:'점판 제품',name:'피치코랄 토닝 샴푸 (점판용)'}],
+    '헤메코':[{cat:'점판 제품',name:'잔머리카라'}],
+  },
+  '아모스':{
+    '아모스':[{cat:'샴푸/트리트먼트',name:'딥클린 샴푸 (비매품)'},{cat:'샴푸/트리트먼트',name:'아쿠아밸런싱마스크 (비매품)'},{cat:'산화제',name:'1.5% 산화제'},{cat:'산화제',name:'3% 산화제'},{cat:'산화제',name:'6% 산화제'},{cat:'산화제',name:'9% 산화제'},{cat:'점판 제품',name:'폴리시 텍스처라이저'},{cat:'점판 제품',name:'폴리쉬 텍스처 라이저'},{cat:'점판 제품',name:'매트 왁스'},{cat:'점판 제품',name:'텍스처 라이저'},{cat:'점판 제품',name:'네츄럴 왁스'},{cat:'점판 제품',name:'디자인 스프레이'},{cat:'펌제',name:'루미네이터 H(건강모)'},{cat:'펌제',name:'루미네이터 EX(강모)'},{cat:'펌제',name:'루미네이터 MC'},{cat:'펌제',name:'루미네이터 CPR'},{cat:'펌제',name:'실키 블루밍 펌',unit:36},{cat:'펌제',name:'피앤피 치오펌'},{cat:'펌제',name:'에센셜 시스테인펌'},{cat:'염모제',name:'TS 1.0'},{cat:'염모제',name:'TS 5.00'},{cat:'염모제',name:'TS 7.00'},{cat:'염모제',name:'IA 9 그레이지'},{cat:'염모제',name:'TS 5.0'},{cat:'염모제',name:'TS 3.0'},{cat:'염모제',name:'IA 5 베이직브라운'},{cat:'염모제',name:'IA 7 베이직브라운'},{cat:'염모제',name:'IA 16 베이직브라운'},{cat:'염모제',name:'IA 7 파인그린'},{cat:'염모제',name:'IA 9 메탈릭 실버'},{cat:'염모제',name:'IA 9 파인그린'},{cat:'염모제',name:'IA 9 라벤더베이지'},{cat:'염모제',name:'IA 11 베이지'},{cat:'염모제',name:'IA 13 라벤더 베이지'},{cat:'염모제',name:'IA 5 라벤더 베이지'},{cat:'염모제',name:'IA 9 플럼 핑크'},{cat:'염모제',name:'IA 13 메탈릭 실버'},{cat:'염모제',name:'IA 13 파인그린'},{cat:'염모제',name:'IA 13 플럼핑크'},{cat:'염모제',name:'IA 7 라벤더 베이지'},{cat:'염모제',name:'IG 9YB'},{cat:'염모제',name:'IA 11 클래식블루'},{cat:'펌제',name:'액상 중화제'},{cat:'펌제',name:'크림 중화제'},{cat:'펌제',name:'아쿠아인플러스 중화제'},{cat:'클리닉제',name:'퀵 본드'},{cat:'클리닉제',name:'하이퍼 피피티'},{cat:'클리닉제',name:'너리싱샷 CMC'},{cat:'클리닉제',name:'시카 앰플트리트먼트'},{cat:'클리닉제',name:'시카 인텐시브크림'},{cat:'탈색약',name:'블론드 블리치'},{cat:'탈색약',name:'하이 블리치'}],
+  },
+  '시세이도':{
+    '시세이도':[{cat:'점판 제품',name:'에어리플로우 샴푸 (점판용)'},{cat:'샴푸/트리트먼트',name:'에어리플로우 샴푸 (비매품)'},{cat:'샴푸/트리트먼트',name:'에어리플로우 샴푸 (비매품)'},{cat:'점판 제품',name:'에어리플로우 트리트먼트 (W) (점판용)'},{cat:'샴푸/트리트먼트',name:'에어리플로우 트리트먼트 (W) (비매품)'},{cat:'샴푸/트리트먼트',name:'에어리플로우 트리트먼트 (W) (비매품)'},{cat:'샴푸/트리트먼트',name:'에어리플로우 마스크 (W) (비매품)'},{cat:'점판 제품',name:'에어리플로우 벨벳 오일 (점판용)'},{cat:'점판 제품',name:'루미노포스 샴푸 (점판용)'},{cat:'샴푸/트리트먼트',name:'루미노포스 샴푸 (비매품)'},{cat:'샴푸/트리트먼트',name:'루미노포스 샴푸 (비매품)'},{cat:'점판 제품',name:'루미노포스 트리트먼트 (점판용)'},{cat:'샴푸/트리트먼트',name:'루미노포스 트리트먼트 (비매품)'},{cat:'샴푸/트리트먼트',name:'루미노포스 마스크 (비매품)'},{cat:'점판 제품',name:'루미노포스 브릴리언스 오일 (점판용)'},{cat:'점판 제품',name:'아쿠아 인텐시브 샴푸 (점판용)'},{cat:'샴푸/트리트먼트',name:'아쿠아 인텐시브 샴푸 (비매품)'},{cat:'샴푸/트리트먼트',name:'아쿠아 인텐시브 샴푸 (비매품)'},{cat:'점판 제품',name:'아쿠아 인텐시브 트리트먼트 (점판용)'},{cat:'점판 제품',name:'아쿠아 인텐시브 트리트먼트 (T) (점판용)'},{cat:'샴푸/트리트먼트',name:'아쿠아 인텐시브 트리트먼트 (비매품)'},{cat:'샴푸/트리트먼트',name:'아쿠아 인텐시브 트리트먼트 (비매품)'},{cat:'샴푸/트리트먼트',name:'아쿠아 인텐시브 마스크 (비매품)'},{cat:'점판 제품',name:'아쿠아 인텐시브 쉬어 오일 (T) (점판용)'},{cat:'클리닉제',name:'아쿠아 인텐시브 리파이닝 플루이드'},{cat:'샴푸/트리트먼트',name:'푸엔테 포르테 샴푸 DS (비매품)'},{cat:'샴푸/트리트먼트',name:'푸엔테 포르테 샴푸 DS (비매품)'},{cat:'샴푸/트리트먼트',name:'푸엔테 포르테 트리트먼트 (비매품)'},{cat:'샴푸/트리트먼트',name:'푸엔테 포르테 트리트먼트 (비매품)'},{cat:'클리닉제',name:'푸엔테 포르테 아로마 스파 드롭'},{cat:'클리닉제',name:'살롱솔루션 인필 (D)',unit:12},{cat:'클리닉제',name:'살롱솔루션 인필 (D)'},{cat:'클리닉제',name:'살롱솔루션 인필 (C)',unit:12},{cat:'클리닉제',name:'살롱솔루션 인필 (C)'},{cat:'클리닉제',name:'살롱솔루션 인필 (U)',unit:12},{cat:'클리닉제',name:'살롱솔루션 인필 (U)'},{cat:'클리닉제',name:'살롱솔루션 업-텍스'},{cat:'클리닉제',name:'살롱솔루션 업-텍스'},{cat:'클리닉제',name:'살롱솔루션 아웃-CA'},{cat:'클리닉제',name:'살롱솔루션 아웃-CA'},{cat:'클리닉제',name:'살롱솔루션 오프-클리어'},{cat:'클리닉제',name:'살롱솔루션 오프-클리어'},{cat:'클리닉제',name:'살롱솔루션 딥-스무스'},{cat:'클리닉제',name:'살롱솔루션 원더쉴드',unit:12},{cat:'클리닉제',name:'살롱솔루션 클래리파잉 스크럽',unit:12},{cat:'클리닉제',name:'살롱솔루션 하이드레이팅 오일',unit:12},{cat:'클리닉제',name:'살롱솔루션 퓨리파잉 클레이',unit:12},{cat:'클리닉제',name:'원더쉴드'},{cat:'점판 제품',name:'스테이지웍스 파우더 쉐이크'},{cat:'점판 제품',name:'스테이지웍스 젤리 쉐이크'}],
+  },
 };
 
 // ── 상태 ──
@@ -525,7 +589,9 @@ function openOrdererModal(cat){
   pendingOrderCat=cat;
   document.getElementById('orderer-input').value='';
   document.getElementById('orderer-modal').style.display='flex';
-  setTimeout(function(){document.getElementById('orderer-input').focus();},100);
+  var inp=document.getElementById('orderer-input');
+  inp.removeAttribute('readonly');
+  setTimeout(function(){inp.focus();inp.click();},150);
 }
 function closeOrdererModal(){document.getElementById('orderer-modal').style.display='none';}
 function confirmOrderer(){
@@ -614,16 +680,18 @@ function buildSideBranch(a){
   var h='<div class="nlbl">내 지점</div><div style="padding:8px 16px;font-size:12px;font-weight:700;color:#1a1a1a">'+curBranch+' <span class="shopbdg '+bc+'">'+curShop+'</span></div><div class="ndiv"></div>';
   h+='<button class="nitem'+(a==='pg-catsel'?' on':'')+'" data-pg="pg-catsel">📋 주문 유형 선택</button>';
   h+='<button class="nitem'+(a==='pg-mystat'?' on':'')+'" data-pg="pg-mystat">📦 내 주문현황</button>';
-  h+='<div class="ndiv"></div><button class="nitem" id="logoutBtn2">← 로그아웃</button>';
+  h+='<div class="ndiv"></div><button class="nitem" id="prevBtn">← 지점 선택</button><button class="nitem" id="homeBtn">🏠 처음으로</button>';
   document.getElementById('sidenav').innerHTML=h;
-  document.getElementById('logoutBtn2').onclick=doLogout;
+  document.getElementById('prevBtn').onclick=function(){showPg('pg-bsel');cart={};curOrderer='';};
+  document.getElementById('homeBtn').onclick=doLogout;
   document.querySelectorAll('#sidenav .nitem[data-pg]').forEach(function(btn){btn.onclick=function(){brTab(btn.dataset.pg);};});
 }
 function buildMobBranch(a){
   var h='';
   [['pg-catsel','📋','주문'],['pg-mystat','📦','내주문']].forEach(function(it){h+='<button class="mbtn'+(a===it[0]?' on':'')+'" data-pg="'+it[0]+'"><span class="mico">'+it[1]+'</span>'+it[2]+'</button>';});
-  h+='<button class="mbtn" id="mobLogout2"><span class="mico">←</span>나가기</button>';
+  h+='<button class="mbtn" id="mobPrev"><span class="mico">←</span>지점선택</button><button class="mbtn" id="mobLogout2"><span class="mico">🏠</span>처음으로</button>';
   document.getElementById('mobnav').style.display='block';document.getElementById('mninner').innerHTML=h;
+  document.getElementById('mobPrev').onclick=function(){showPg('pg-bsel');cart={};curOrderer='';};
   document.getElementById('mobLogout2').onclick=doLogout;
   document.querySelectorAll('#mninner .mbtn[data-pg]').forEach(function(btn){btn.onclick=function(){brTab(btn.dataset.pg);};});
 }
@@ -648,10 +716,10 @@ function selB(shop,branch){
   showPg('pg-catsel');
 }
 function goOrderCat(cat){
-  curCat=cat;cart={};
+  curCat=cat;cart={};curCatFilter='';
   if(cat==='비품'){
     buildSideBranch('pg-bipum');buildMobBranch('pg-bipum');
-    renderBipum();showPg('pg-bipum');
+    curBipumSup='';curBipumBrand='';curBipumCatFilter='';renderBipumTabs();renderBipum();showPg('pg-bipum');
   } else {
     buildSideBranch('pg-jepum');buildMobBranch('pg-jepum');
     curSup='';curBrand='';
@@ -676,29 +744,91 @@ function doLogout(){
 function makeKey(sup,brand,name){return('J_'+sup+'_'+brand+'_'+name).replace(/\s+/g,'_').replace(/[^a-zA-Z0-9_가-힣]/g,'').substring(0,80);}
 function makeBKey(name){return('B_'+name).replace(/\s+/g,'_').replace(/[^a-zA-Z0-9_가-힣]/g,'').substring(0,80);}
 
-// ── 비품 렌더 ──
-function renderBipum(){
-  document.getElementById('bipum-sub').textContent=curShop+' · '+curBranch+(curOrderer?' · ✍️ '+curOrderer:'');
-  var html='';
-  BIPUM.forEach(function(name){
-    var k=makeBKey(name);var qty=cart[k]||0;
-    html+='<div class="pcard"><div class="pinfo"><div class="pname">'+name+'</div></div><div class="qctl"><button class="qbtn" data-key="'+k+'" data-d="-1">−</button><span class="qnum" id="qn_'+k+'">'+qty+'</span><button class="qbtn" data-key="'+k+'" data-d="1">+</button></div></div>';
+// ── 비품 렌더 (JEPUM 기반, 거래처/브랜드 탭 + 카테고리 탭 포함) ──
+var curBipumSup='', curBipumBrand='', curBipumCatFilter='';
+
+function renderBipumTabs(){
+  // 거래처 탭: 비품 카테고리가 하나라도 있는 거래처만
+  var allSups=Object.keys(JEPUM);
+  var sups=allSups.filter(function(s){
+    return Object.keys(JEPUM[s]).some(function(b){
+      return JEPUM[s][b].some(function(p){return p.cat==='비품';});
+    });
   });
-  document.getElementById('bipum-list').innerHTML=html;
+  var stabs='<div class="sup-tab'+(curBipumSup===''?' on':'')+'" data-sup="">전체</div>';
+  sups.forEach(function(s){
+    stabs+='<div class="sup-tab'+(curBipumSup===s?' on':'')+'" data-sup="'+s+'">'+s+'</div>';
+  });
+  var supEl=document.getElementById('bipum-sup-tabs');
+  if(supEl) supEl.innerHTML=stabs;
+  document.querySelectorAll('#bipum-sup-tabs .sup-tab').forEach(function(t){
+    t.onclick=function(){curBipumSup=t.dataset.sup;curBipumBrand='';renderBipumTabs();renderBipum();};
+  });
+
+  // 브랜드 탭: 선택된 거래처 기준
+  var sups2=curBipumSup===''?sups:[curBipumSup];
+  var brands=[];
+  sups2.forEach(function(s){
+    Object.keys(JEPUM[s]).forEach(function(b){
+      if(JEPUM[s][b].some(function(p){return p.cat==='비품';})&&brands.indexOf(b)<0) brands.push(b);
+    });
+  });
+  var btabs='<div class="brand-tab'+(curBipumBrand===''?' on':'')+'" data-brand="">전체</div>';
+  brands.forEach(function(b){
+    btabs+='<div class="brand-tab'+(curBipumBrand===b?' on':'')+'" data-brand="'+b+'">'+b+'</div>';
+  });
+  var brandEl=document.getElementById('bipum-brand-tabs');
+  if(brandEl) brandEl.innerHTML=btabs;
+  document.querySelectorAll('#bipum-brand-tabs .brand-tab').forEach(function(t){
+    t.onclick=function(){curBipumBrand=t.dataset.brand;renderBipumTabs();renderBipum();};
+  });
+}
+
+function renderBipum(){
+  var bipumSubEl=document.getElementById('bipum-sub');
+  if(bipumSubEl) bipumSubEl.textContent=curShop+' · '+curBranch+(curOrderer?' · ✍️ '+curOrderer:'');
+  var search=(document.getElementById('bipum-search')||{}).value||'';
+  search=search.trim().toLowerCase();
+
+  var allSups=Object.keys(JEPUM);
+  var sups=allSups.filter(function(s){
+    return Object.keys(JEPUM[s]).some(function(b){
+      return JEPUM[s][b].some(function(p){return p.cat==='비품';});
+    });
+  });
+  var targetSups=curBipumSup===''?sups:[curBipumSup];
+  var html='';
+  targetSups.forEach(function(sup){
+    var brands=curBipumBrand===''?Object.keys(JEPUM[sup]):[curBipumBrand];
+    brands.forEach(function(brand){
+      if(!JEPUM[sup][brand]) return;
+      JEPUM[sup][brand].forEach(function(p){
+        if(p.cat!=='비품') return;
+        if(search&&p.name.toLowerCase().indexOf(search)<0) return;
+        var k=makeKey(sup,brand,p.name);
+        var qty=cart[k]||0;
+        var unitTag=p.unit?'<div style="font-size:10px;color:#e65100;margin-top:2px;font-weight:600">📦 1개 주문 시 '+p.unit+'개 입고</div>':'';
+        html+='<div class="pcard"><div class="pinfo"><div class="pname">'+p.name+'</div>'+unitTag+'<div class="pmeta"><span class="cat-tag c-bipum">비품</span>'+sup+' · '+brand+'</div></div><div class="qctl"><button class="qbtn" data-key="'+k+'" data-d="-1">−</button><span class="qnum" id="qn_'+k+'">'+qty+'</span><button class="qbtn" data-key="'+k+'" data-d="1">+</button></div></div>';
+      });
+    });
+  });
+  if(!html) html='<div class="empty">'+(search?'검색 결과가 없어요':'등록된 비품이 없어요')+'</div>';
+  var listEl=document.getElementById('bipum-list');
+  if(listEl) listEl.innerHTML=html;
   document.querySelectorAll('#bipum-list .qbtn').forEach(function(btn){
     btn.onclick=function(){chgCart(btn.dataset.key,parseInt(btn.dataset.d));updateSummary();};
   });
   updateSummary();
 }
 
-// ── 제품 탭 렌더 ──
+
 function renderJepumTabs(){
   var sups=Object.keys(JEPUM);
   // 거래처 탭
   var html='<div class="sup-tab'+(curSup===''?' on':'')+'" data-sup="">전체</div>';
   sups.forEach(function(s){html+='<div class="sup-tab'+(curSup===s?' on':'')+'" data-sup="'+s+'">'+s+'</div>';});
   document.getElementById('sup-tabs').innerHTML=html;
-  document.querySelectorAll('.sup-tab').forEach(function(t){t.onclick=function(){curSup=t.dataset.sup;curBrand='';renderJepumTabs();renderJepum();};});
+  document.querySelectorAll('.sup-tab').forEach(function(t){t.onclick=function(){curSup=t.dataset.sup;curBrand='';curCatFilter='';renderJepumTabs();renderJepum();};});
   // 브랜드 탭
   var brands=[];
   if(curSup===''){sups.forEach(function(s){Object.keys(JEPUM[s]).forEach(function(b){if(!brands.includes(b))brands.push(b);});});}
@@ -706,12 +836,15 @@ function renderJepumTabs(){
   var bhtml='<div class="brand-tab'+(curBrand===''?' on':'')+'" data-brand="">전체</div>';
   brands.forEach(function(b){bhtml+='<div class="brand-tab'+(curBrand===b?' on':'')+'" data-brand="'+b+'">'+b+'</div>';});
   document.getElementById('brand-tabs').innerHTML=bhtml;
-  document.querySelectorAll('.brand-tab').forEach(function(t){t.onclick=function(){curBrand=t.dataset.brand;renderJepumTabs();renderJepum();};});
+  document.querySelectorAll('.brand-tab').forEach(function(t){t.onclick=function(){curBrand=t.dataset.brand;curCatFilter='';renderJepumTabs();renderJepum();};});
+  renderCatTabs();
 }
 
 // ── 제품 목록 렌더 (탭 필터 적용) ──
 function renderJepum(){
   document.getElementById('jepum-sub').textContent=curShop+' · '+curBranch+(curOrderer?' · ✍️ '+curOrderer:'');
+  var search=(document.getElementById('jepum-search')||{}).value||'';
+  search=search.trim().toLowerCase();
   var html='';
   // 표시할 제품 목록 수집
   var sups=curSup===''?Object.keys(JEPUM):[curSup];
@@ -720,13 +853,17 @@ function renderJepum(){
     brands.forEach(function(brand){
       var products=JEPUM[sup][brand];
       products.forEach(function(p){
+        if(search&&p.name.toLowerCase().indexOf(search)<0)return;
+        if(p.cat==='비품')return;
+        if(curCatFilter&&p.cat!==curCatFilter)return;
         var k=makeKey(sup,brand,p.name);
         var qty=cart[k]||0;
-        html+='<div class="pcard"><div class="pinfo"><div class="pname">'+p.name+'</div><div class="pmeta"><span class="cat-tag">'+p.cat+'</span>'+sup+' · '+brand+'</div></div><div class="qctl"><button class="qbtn" data-key="'+k+'" data-d="-1">−</button><span class="qnum" id="qn_'+k+'">'+qty+'</span><button class="qbtn" data-key="'+k+'" data-d="1">+</button></div></div>';
+        var unitTag=p.unit?'<div style="font-size:10px;color:#e65100;margin-top:2px;font-weight:600">📦 1개 주문 시 '+p.unit+'개 입고</div>':'';
+        html+='<div class="pcard"><div class="pinfo"><div class="pname">'+p.name+'</div>'+unitTag+'<div class="pmeta"><span class="cat-tag '+catClass(p.cat)+'">'+p.cat+'</span>'+sup+' · '+brand+'</div></div><div class="qctl"><button class="qbtn" data-key="'+k+'" data-d="-1">−</button><span class="qnum" id="qn_'+k+'">'+qty+'</span><button class="qbtn" data-key="'+k+'" data-d="1">+</button></div></div>';
       });
     });
   });
-  if(!html)html='<div class="empty">해당 거래처/브랜드 제품이 없어요</div>';
+  if(!html)html='<div class="empty">'+(search?'검색 결과가 없어요':'해당 거래처/브랜드 제품이 없어요')+'</div>';
   document.getElementById('jepum-list').innerHTML=html;
   document.querySelectorAll('#jepum-list .qbtn').forEach(function(btn){
     btn.onclick=function(e){e.stopPropagation();chgCart(btn.dataset.key,parseInt(btn.dataset.d));updateSummary();};
@@ -837,8 +974,8 @@ function renderHQ(){
     if(o.deliveryDate){delHtml='<span style="margin-left:6px">'+(o.deliveryDate==='확인불가'?'<span class="del-na">배송일: 확인 불가</span>':'<span class="del-date">배송일: '+o.deliveryDate+'</span>')+'</span>';}
     var f='';
     if(o.status==='대기중')f='<div class="ofoot"><div class="abtn red" data-key="'+key+'" data-st="취소">거절</div><div class="abtn pri" onclick="openConfirmModal(\''+key+'\')">발주 확정</div></div>';
-    if(o.status==='배송중')f='<div class="ofoot"><div class="abtn org" onclick="revertOrder(\''+key+'\')">발주취소</div><div class="abtn pri" data-key="'+key+'" data-st="완료">배송 완료</div></div>';
-    if(o.status==='완료')f='<div class="ofoot"><div class="abtn org" onclick="revertOrder(\''+key+'\')">발주취소</div></div>';
+    if(o.status==='배송중')f='<div class="ofoot"><div class="abtn org" data-key="'+key+'" onclick="revertOrder(this.dataset.key)">발주취소</div><div class="abtn pri" data-key="'+key+'" data-st="완료">배송 완료</div></div>';
+    if(o.status==='완료')f='<div class="ofoot"><div class="abtn org" data-key="'+key+'" onclick="revertOrder(this.dataset.key)">발주취소</div></div>';
     return'<div class="oitem"><div style="flex:1;min-width:0"><div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:3px"><span class="obr">'+o.branch+'</span><span class="shopbdg '+sc+'">'+o.shop+'</span>'+(o.orderer?'<span style="font-size:11px;color:#555">✍️ '+o.orderer+'</span>':'')+'<span class="bdg '+bs+'">'+o.status+'</span>'+(o.status==='대기중'?'<span class="newbdg">NEW</span>':'')+delHtml+'</div><div class="odt">'+o.date+' · '+isum(o.items)+'</div>'+f+'</div></div>';
   }).join('');
   document.querySelectorAll('#hqlist .abtn[data-key]').forEach(function(btn){btn.onclick=function(){updSt(btn.dataset.key,btn.dataset.st);};});
@@ -1068,25 +1205,6 @@ function doDownload(){
     var t=document.getElementById('toast');t.style.display='block';setTimeout(function(){t.style.display='none';},3000);
   });
 }
-// ── 모바일 하단 고정영역 높이만큼 padding 자동 조정 ──
-function adjustBottomPadding(){
-  if(window.innerWidth>640)return;
-  var wraps=document.querySelectorAll('.order-btn-wrap');
-  var mainEl=document.querySelector('.main');
-  if(!mainEl)return;
-  var maxH=0;
-  wraps.forEach(function(w){
-    var pg=w.closest('.pg');
-    if(pg&&pg.classList.contains('on')){
-      maxH=Math.max(maxH,w.offsetHeight);
-    }
-  });
-  mainEl.style.paddingBottom=(maxH+70)+'px';
-}
-window.addEventListener('resize',adjustBottomPadding);
-var _origShowPg=showPg;
-showPg=function(id){_origShowPg(id);setTimeout(adjustBottomPadding,50);};
-setInterval(adjustBottomPadding,500);
 </script>
 </body>
 </html>
