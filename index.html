@@ -25,14 +25,27 @@ body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:#f5f5f5;
 .logo{font-size:14px;font-weight:700;letter-spacing:.08em}
 .logosub{font-size:10px;opacity:.5;margin-top:1px}
 .layout{display:grid;grid-template-columns:220px 1fr;min-height:calc(100vh - 48px)}
-@media(max-width:640px){.layout{grid-template-columns:1fr}.sidebar{display:none}.mobnav{display:flex!important}.main{padding:16px;padding-bottom:80px}}
+@media(max-width:640px){.layout{grid-template-columns:1fr}.sidebar{display:none}.mobnav{display:flex!important}.main{padding:16px;padding-bottom:240px}}
+/* 주문 고정 바 — 하단 nav 위에 위치 */
+#obf-bar{position:fixed;bottom:52px;left:0;right:0;z-index:9999;background:#fff;border-top:1px solid #ddd;box-shadow:0 -4px 12px rgba(0,0,0,.08)}
+#obf-bar .obf-title{font-size:13px;font-weight:700;color:#185FA5;padding:10px 24px 6px}
+#obf-bar .obf-items{max-height:96px;overflow-y:auto;-webkit-overflow-scrolling:touch;border:1px solid #e0ecf7;border-radius:8px;background:#f0f7ff;padding:4px 12px;margin:0 24px 8px}
+#obf-bar .obf-items .summary-empty{text-align:center;color:#aaa;font-size:12px;padding:8px 0}
+#obf-bar .obf-items .summary-item{display:flex;justify-content:space-between;align-items:center;padding:4px 0;border-bottom:1px solid #dce8f5;font-size:12px;gap:8px}
+#obf-bar .obf-items .summary-item:last-child{border-bottom:none}
+#obf-bar .obf-items .summary-item-name{color:#333;flex:1;line-height:1.4}
+#obf-bar .obf-items .summary-item-qty{color:#185FA5;font-weight:700;flex-shrink:0}
+#obf-bar .obf-btn{padding:0 24px 14px}
+#obf-bar .obf-btn .gbtn{width:100%}
+@media(min-width:641px){#obf-bar{left:220px}}
+@media(max-width:640px){#obf-bar .obf-title{padding:8px 16px 4px}#obf-bar .obf-items{margin:0 16px 6px}#obf-bar .obf-btn{padding:0 16px 10px}}
 .sidebar{background:#fff;border-right:1px solid #ebebeb;padding:16px 0;position:sticky;top:48px;height:calc(100vh - 48px);overflow-y:auto}
 .nlbl{font-size:10px;font-weight:700;color:#aaa;padding:10px 16px 4px;letter-spacing:.06em}
 .nitem{display:flex;align-items:center;gap:8px;padding:10px 16px;cursor:pointer;font-size:13px;color:#555;border:none;background:none;width:100%;text-align:left}
 .nitem:hover{background:#f5f5f5;color:#1a1a1a}
 .nitem.on{background:#f0f0f0;color:#1a1a1a;font-weight:600;border-right:2px solid #1a1a1a}
 .ndiv{height:1px;background:#ebebeb;margin:10px 0}
-.main{padding:24px;overflow-y:auto}
+.main{padding:24px;padding-bottom:220px;overflow-y:auto}
 .pg{display:none;flex-direction:column;gap:16px}
 .pg.on{display:flex}
 .ph{display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:4px}
@@ -51,7 +64,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:#f5f5f5;
 .obr{font-size:13px;font-weight:600;color:#1a1a1a}
 .odt{font-size:11px;color:#aaa;margin-top:3px;line-height:1.5}
 .bdg{font-size:10px;padding:3px 8px;border-radius:20px;font-weight:700;white-space:nowrap;flex-shrink:0}
-.sp{background:#FFF3CD;color:#856404}.si{background:#D1ECF1;color:#0C5460}.sd{background:#D4EDDA;color:#155724}.sc{background:#f8d7da;color:#721c24}
+.sp{background:#FFF3CD;color:#856404}.si{background:#D1ECF1;color:#0C5460}.sd{background:#D4EDDA;color:#155724}.sc{background:#f8d7da;color:#721c24}.sr{background:#f8d7da;color:#721c24}.src{background:#e8e8e8;color:#555}
 .ofoot{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
 .abtn{flex:1;padding:7px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;text-align:center;border:1px solid #ddd;background:#f5f5f5;color:#1a1a1a;min-width:80px}
 .abtn.pri{background:#1a1a1a;color:#fff;border-color:#1a1a1a}
@@ -222,6 +235,38 @@ input[type=date]{color-scheme:light}
   </div>
 </div>
 
+<!-- 환불 요청 모달 -->
+<div class="modal-bg" id="refund-modal" style="display:none">
+  <div class="modal-box">
+    <h4>🔄 환불 요청</h4>
+    <p style="margin-bottom:4px">환불할 제품과 수량을 선택하세요</p>
+    <p style="font-size:11px;color:#aaa;margin-bottom:12px">수량 0은 환불 대상에서 제외됩니다</p>
+    <div id="refund-items" style="max-height:300px;overflow-y:auto;margin-bottom:14px"></div>
+    <div class="modal-btns">
+      <button class="gbtn sec" style="flex:1" onclick="closeRefundModal()">취소</button>
+      <button class="gbtn red" style="flex:1" onclick="submitRefund()">환불 요청</button>
+    </div>
+  </div>
+</div>
+
+<!-- 주문 확인 모달 -->
+<div class="modal-bg" id="order-confirm-modal" style="display:none">
+  <div class="modal-box">
+    <h4>📋 주문 확인</h4>
+    <p style="margin-bottom:12px">아래 내용으로 주문을 요청합니다</p>
+    <div style="background:#f5f5f5;border-radius:10px;padding:10px 14px;margin-bottom:6px">
+      <div style="font-size:12px;font-weight:700;color:#1a1a1a;margin-bottom:2px" id="oc-branch"></div>
+      <div style="font-size:11px;color:#888" id="oc-orderer"></div>
+    </div>
+    <div id="oc-items" style="max-height:280px;overflow-y:auto;margin-bottom:14px"></div>
+    <div style="text-align:right;font-size:13px;font-weight:700;color:#1a1a1a;margin-bottom:14px" id="oc-total"></div>
+    <div class="modal-btns">
+      <button class="gbtn sec" style="flex:1" onclick="closeOrderConfirm()">수정하기</button>
+      <button class="gbtn" style="flex:1" onclick="confirmAndOrder()">주문 요청하기</button>
+    </div>
+  </div>
+</div>
+
 <div class="topbar">
   <div><div class="logo">DM INTERNATIONAL</div><div class="logosub">발주 관리 시스템</div></div>
   <div style="display:flex;align-items:center;gap:8px;font-size:11px;opacity:.8"><span id="cbdg" class="clo">로컬</span><span id="topright" style="opacity:.6">DAY:MEAN · ETOH</span></div>
@@ -285,41 +330,23 @@ input[type=date]{color-scheme:light}
     <!-- 비품 주문 -->
     <div class="pg" id="pg-bipum">
       <div class="ph"><div><div class="ptitle">비품 주문</div><div class="psub" id="bipum-sub"></div></div></div>
-      <!-- 거래처 탭 -->
       <div class="sup-tabs" id="bipum-sup-tabs"></div>
-      <!-- 브랜드 탭 -->
       <div class="brand-tabs" id="bipum-brand-tabs"></div>
-      <!-- 카테고리 탭 (비품은 카테고리 없으므로 숨김) -->
       <div class="cat-tab-bar" id="bipum-cat-tabs" style="display:none"></div>
-      <!-- 검색창 -->
       <input type="text" id="bipum-search" placeholder="🔍 비품 검색..." oninput="renderBipum()" style="margin-bottom:10px;font-size:13px;">
-      <!-- 비품 목록 -->
       <div id="bipum-list"></div>
-      <div class="summary-box">
-        <div class="summary-title">🛒 현재 주문 목록</div>
-        <div id="bipum-summary-items"><div class="summary-empty">선택한 항목이 없어요</div></div>
-      </div>
-      <button class="gbtn" onclick="doOrder()">주문 요청하기</button>
+      <div style="height:220px"></div>
     </div>
 
     <!-- 제품 주문 -->
     <div class="pg" id="pg-jepum">
       <div class="ph"><div><div class="ptitle">제품 주문</div><div class="psub" id="jepum-sub"></div></div></div>
-      <!-- 제품 검색 -->
       <input type="text" id="jepum-search" placeholder="🔍 제품명 검색..." oninput="renderJepum()" style="margin-bottom:10px;font-size:13px;">
-      <!-- 카테고리 탭 -->
       <div class="cat-tab-bar" id="cat-tab-bar"></div>
-      <!-- 거래처 탭 (상단 가로) -->
       <div class="sup-tabs" id="sup-tabs"></div>
-      <!-- 브랜드 필터 -->
       <div class="brand-tabs" id="brand-tabs"></div>
-      <!-- 제품 목록 -->
       <div id="jepum-list"></div>
-      <div class="summary-box">
-        <div class="summary-title">🛒 현재 주문 목록</div>
-        <div id="jepum-summary-items"><div class="summary-empty">선택한 항목이 없어요</div></div>
-      </div>
-      <button class="gbtn" onclick="doOrder()">주문 요청하기</button>
+      <div style="height:220px"></div>
     </div>
 
     <!-- 내 주문현황 -->
@@ -339,17 +366,51 @@ input[type=date]{color-scheme:light}
       </div>
     </div>
 
-    <!-- 본사 주문목록 -->
+    <!-- 본사 주문요청 -->
     <div class="pg" id="pg-hq">
       <div class="ph">
-        <div><div class="ptitle">주문 목록</div><div class="psub" id="hqsub">로딩 중...</div></div>
+        <div><div class="ptitle">주문 요청</div><div class="psub" id="hqsub">로딩 중...</div></div>
         <div class="frow">
           <select id="fs" onchange="onShopFilter()"><option value="">전체 브랜드</option><option>DAY:MEAN</option><option>ETOH</option></select>
           <select id="fb" onchange="renderHQ()"><option value="">전체 지점</option><option>플래그십점</option><option>모먼트점</option><option>합정점</option></select>
-          <select id="fst" onchange="renderHQ()"><option value="">전체 상태</option><option>대기중</option><option>배송중</option><option>완료</option></select>
         </div>
       </div>
       <div class="card"><div id="hqlist"><div class="empty">로딩 중...</div></div></div>
+    </div>
+
+    <!-- 배송 완료 목록 -->
+    <div class="pg" id="pg-completed">
+      <div class="ph">
+        <div><div class="ptitle">배송 완료</div><div class="psub" id="comp-sub"></div></div>
+      </div>
+      <div class="card" style="padding:12px">
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px">
+          <input type="date" id="comp-from" style="flex:1;min-width:110px">
+          <span style="font-size:12px;color:#aaa">~</span>
+          <input type="date" id="comp-to" style="flex:1;min-width:110px">
+          <button class="gbtn" style="padding:8px 16px;font-size:12px;white-space:nowrap" onclick="renderCompleted()">조회</button>
+        </div>
+        <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:12px">
+          <div class="qkbtn" onclick="setCompRange('today')">오늘</div>
+          <div class="qkbtn" onclick="setCompRange('yesterday')">어제</div>
+          <div class="qkbtn" onclick="setCompRange('week')">1주일</div>
+          <div class="qkbtn" onclick="setCompRange('month')">당월</div>
+          <div class="qkbtn" onclick="setCompRange('prevmonth')">전월</div>
+          <div class="qkbtn" onclick="setCompRange('3month')">3개월</div>
+          <div class="qkbtn" onclick="setCompRange('h1')">상반기</div>
+          <div class="qkbtn" onclick="setCompRange('h2')">하반기</div>
+          <div class="qkbtn" onclick="setCompRange('year')">올해</div>
+        </div>
+      </div>
+      <div class="card"><div id="comp-list"><div class="empty">로딩 중...</div></div></div>
+    </div>
+
+    <!-- 환불 관리 -->
+    <div class="pg" id="pg-refund">
+      <div class="ph"><div><div class="ptitle">환불 관리</div><div class="psub" id="refund-sub"></div></div></div>
+      <div class="sgrid" id="refund-stats" style="margin-bottom:12px"></div>
+      <div class="card"><div class="clbl">환불 요청 대기</div><div id="refund-pending"><div class="empty">로딩 중...</div></div></div>
+      <div class="card"><div class="clbl">환불 처리 완료</div><div id="refund-done"><div class="empty">로딩 중...</div></div></div>
     </div>
 
     <!-- 본사 통계 -->
@@ -463,7 +524,15 @@ input[type=date]{color-scheme:light}
 
   </div>
 </div>
+
 <div class="mobnav" id="mobnav" style="display:none"><div class="mninner" id="mninner"></div></div>
+
+<!-- 주문 고정 바 -->
+<div id="obf-bar" style="display:none">
+  <div class="obf-title">🛒 현재 주문 목록</div>
+  <div class="obf-items" id="obf-items"><div class="summary-empty">선택한 항목이 없어요</div></div>
+  <div class="obf-btn"><button class="gbtn" onclick="doOrder()">주문 요청하기</button></div>
+</div>
 
 <script>
 var PW_HASH='ecd43c76523254bc667a3425e0d7e4ae7d834ff11e9b1792bca6b51ef698853f';
@@ -574,7 +643,7 @@ function doSkip(){/* 로컬 모드 비활성화 - 사용 불가 */}
   setConnected();
   loadOrders().then(function(){updSubs();startPoll();});
 })();
-function showPg(id){document.querySelectorAll('.pg').forEach(function(p){p.classList.remove('on');});document.getElementById(id).classList.add('on');window.scrollTo(0,0);}
+function showPg(id){document.querySelectorAll('.pg').forEach(function(p){p.classList.remove('on');});document.getElementById(id).classList.add('on');window.scrollTo(0,0);document.getElementById('obf-bar').style.display=(id==='pg-bipum'||id==='pg-jepum')?'block':'none';}
 function updSubs(){
   var now=new Date(),ym=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0');
   BRANCHES.forEach(function(br,i){var cnt=orders.filter(function(o){return o.branch===br[1]&&o.date&&o.date.startsWith(ym);}).length;var el=document.getElementById('bs'+i);if(el)el.textContent='이번 달 주문 '+cnt+'건';});
@@ -660,7 +729,7 @@ function saveEdit(){
 // ── 사이드바 ──
 function buildSideHQ(a){
   var h='<div class="nlbl">DM INTERNATIONAL</div>';
-  [['pg-hq','📋 주문 목록'],['pg-stat','📊 통계'],['pg-dl','📥 엑셀 다운로드']].forEach(function(it){h+='<button class="nitem'+(a===it[0]?' on':'')+'" data-pg="'+it[0]+'">'+it[1]+'</button>';});
+  [['pg-hq','📋 주문 요청'],['pg-completed','✅ 배송 완료'],['pg-refund','🔄 환불 관리'],['pg-stat','📊 통계'],['pg-dl','📥 엑셀 다운로드']].forEach(function(it){h+='<button class="nitem'+(a===it[0]?' on':'')+'" data-pg="'+it[0]+'">'+it[1]+'</button>';});
   h+='<div class="ndiv"></div><button class="nitem" id="fbBtn">🔥 Firebase 설정</button><button class="nitem" id="logoutBtn">← 로그아웃</button>';
   document.getElementById('sidenav').innerHTML=h;
   document.getElementById('fbBtn').onclick=function(){document.getElementById('ov').style.display='flex';};
@@ -669,7 +738,7 @@ function buildSideHQ(a){
 }
 function buildMobHQ(a){
   var h='';
-  [['pg-hq','📋','주문목록'],['pg-stat','📊','통계'],['pg-dl','📥','다운로드']].forEach(function(it){h+='<button class="mbtn'+(a===it[0]?' on':'')+'" data-pg="'+it[0]+'"><span class="mico">'+it[1]+'</span>'+it[2]+'</button>';});
+  [['pg-hq','📋','주문요청'],['pg-completed','✅','배송완료'],['pg-refund','🔄','환불'],['pg-stat','📊','통계'],['pg-dl','📥','다운로드']].forEach(function(it){h+='<button class="mbtn'+(a===it[0]?' on':'')+'" data-pg="'+it[0]+'"><span class="mico">'+it[1]+'</span>'+it[2]+'</button>';});
   h+='<button class="mbtn" id="mobLogout"><span class="mico">←</span>나가기</button>';
   document.getElementById('mobnav').style.display='block';document.getElementById('mninner').innerHTML=h;
   document.getElementById('mobLogout').onclick=doLogout;
@@ -688,7 +757,7 @@ function buildSideBranch(a){
 }
 function buildMobBranch(a){
   var h='';
-  [['pg-catsel','📋','주문'],['pg-mystat','📦','내주문']].forEach(function(it){h+='<button class="mbtn'+(a===it[0]?' on':'')+'" data-pg="'+it[0]+'"><span class="mico">'+it[1]+'</span>'+it[2]+'</button>';});
+  [['pg-catsel','📋','유형선택'],['pg-mystat','📦','내주문']].forEach(function(it){h+='<button class="mbtn'+(a===it[0]?' on':'')+'" data-pg="'+it[0]+'"><span class="mico">'+it[1]+'</span>'+it[2]+'</button>';});
   h+='<button class="mbtn" id="mobPrev"><span class="mico">←</span>지점선택</button><button class="mbtn" id="mobLogout2"><span class="mico">🏠</span>처음으로</button>';
   document.getElementById('mobnav').style.display='block';document.getElementById('mninner').innerHTML=h;
   document.getElementById('mobPrev').onclick=function(){showPg('pg-bsel');cart={};curOrderer='';};
@@ -704,7 +773,7 @@ function goHQ(){
 }
 function hqTab(id){
   buildSideHQ(id);buildMobHQ(id);showPg(id);
-  loadOrders().then(function(){if(id==='pg-hq')renderHQ();if(id==='pg-stat')renderStat();if(id==='pg-dl')initDL();});
+  loadOrders().then(function(){if(id==='pg-hq')renderHQ();if(id==='pg-completed'){initCompDate();renderCompleted();}if(id==='pg-refund')renderRefund();if(id==='pg-stat')renderStat();if(id==='pg-dl')initDL();});
 }
 function selB(shop,branch){
   curShop=shop;curBranch=branch;cart={};curOrderer='';
@@ -725,6 +794,11 @@ function goOrderCat(cat){
     curSup='';curBrand='';
     renderJepumTabs();renderJepum();showPg('pg-jepum');
   }
+}
+function goBackToCatsel(){
+  cart={};
+  buildSideBranch('pg-catsel');buildMobBranch('pg-catsel');
+  showPg('pg-catsel');
 }
 function brTab(id){
   buildSideBranch(id);buildMobBranch(id);showPg(id);
@@ -822,6 +896,42 @@ function renderBipum(){
 }
 
 
+// ── 카테고리 CSS 클래스 매핑 ──
+function catClass(cat){
+  var map={'비품':'c-bipum','산화제':'c-산화제','샴푸/트리트먼트':'c-샴푸','염모제':'c-염모제','점판 제품':'c-점판','클리닉제':'c-클리닉','탈색약':'c-탈색','펌제':'c-펌'};
+  return map[cat]||'';
+}
+function catBtnClass(cat){
+  var map={'비품':'cb-bipum','산화제':'cb-산화제','샴푸/트리트먼트':'cb-샴푸','염모제':'cb-염모제','점판 제품':'cb-점판','클리닉제':'cb-클리닉','탈색약':'cb-탈색','펌제':'cb-펌'};
+  return map[cat]||'';
+}
+
+// ── 카테고리 탭 렌더 (제품 페이지) ──
+function renderCatTabs(){
+  var cats=[];
+  var sups=curSup===''?Object.keys(JEPUM):[curSup];
+  sups.forEach(function(sup){
+    var brands=curBrand===''?Object.keys(JEPUM[sup]):(JEPUM[sup][curBrand]?[curBrand]:[]);
+    brands.forEach(function(brand){
+      if(!JEPUM[sup][brand]) return;
+      JEPUM[sup][brand].forEach(function(p){
+        if(p.cat!=='비품'&&cats.indexOf(p.cat)<0) cats.push(p.cat);
+      });
+    });
+  });
+  var order=['산화제','샴푸/트리트먼트','염모제','점판 제품','클리닉제','탈색약','펌제'];
+  cats.sort(function(a,b){return order.indexOf(a)-order.indexOf(b);});
+  var html='<button class="cat-tab-btn'+(curCatFilter===''?' on':'')+'" data-cat="">전체</button>';
+  cats.forEach(function(cat){
+    html+='<button class="cat-tab-btn '+catBtnClass(cat)+(curCatFilter===cat?' on':'')+'" data-cat="'+cat+'">'+cat+'</button>';
+  });
+  var el=document.getElementById('cat-tab-bar');
+  if(el) el.innerHTML=html;
+  document.querySelectorAll('.cat-tab-btn').forEach(function(btn){
+    btn.onclick=function(){curCatFilter=btn.dataset.cat;renderCatTabs();renderJepum();};
+  });
+}
+
 function renderJepumTabs(){
   var sups=Object.keys(JEPUM);
   // 거래처 탭
@@ -893,22 +1003,65 @@ function findItemInfo(k){
 }
 function updateSummary(){
   var items=getCartItems();
-  var pgId=curCat==='비품'?'bipum':'jepum';
-  var el=document.getElementById(pgId+'-summary-items');
+  var el=document.getElementById('obf-items');
   if(!el)return;
   if(items.length===0){el.innerHTML='<div class="summary-empty">선택한 항목이 없어요</div>';return;}
   var html='';
   items.forEach(function(it){
-    var label=it.supplier==='비품'?'[비품] ':'['+it.supplier+' / '+it.brand+'] ';
-    html+='<div class="summary-item"><span class="summary-item-name">'+label+it.name+'</span><span class="summary-item-qty">×'+it.qty+'</span></div>';
+    var label=it.supplier==='비품'?'[비품] ':'['+it.supplier+'] ';
+    html+='<div class="summary-item" style="gap:4px">'
+      +'<span class="summary-item-name" style="font-size:11px">'+label+it.name+'</span>'
+      +'<div style="display:flex;align-items:center;gap:4px;flex-shrink:0">'
+      +'<button style="width:22px;height:22px;border-radius:50%;border:1px solid #ddd;background:#f5f5f5;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#1a1a1a" data-skey="'+it.key+'" data-sd="-1">−</button>'
+      +'<span style="font-size:12px;font-weight:700;min-width:16px;text-align:center;color:#185FA5">'+it.qty+'</span>'
+      +'<button style="width:22px;height:22px;border-radius:50%;border:1px solid #ddd;background:#f5f5f5;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#1a1a1a" data-skey="'+it.key+'" data-sd="1">+</button>'
+      +'<button style="width:22px;height:22px;border-radius:50%;border:1px solid #f8d7da;background:#f8d7da;font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#dc3545;margin-left:2px" data-skey="'+it.key+'" data-sd="del">✕</button>'
+      +'</div></div>';
   });
   el.innerHTML=html;
+  document.querySelectorAll('#obf-items [data-skey]').forEach(function(btn){
+    btn.onclick=function(e){
+      e.stopPropagation();
+      var key=btn.dataset.skey,d=btn.dataset.sd;
+      if(d==='del'){cart[key]=0;}
+      else{chgCart(key,parseInt(d));}
+      // 제품 목록의 수량 표시도 동기화
+      var qel=document.getElementById('qn_'+key);
+      if(qel)qel.textContent=cart[key]||0;
+      updateSummary();
+    };
+  });
 }
 
 // ── 주문 제출 ──
 function doOrder(){
   var items=getCartItems();
   if(items.length===0){alert('수량을 하나 이상 선택해주세요');return;}
+  // 확인 모달 열기
+  document.getElementById('oc-branch').textContent=curShop+' · '+curBranch;
+  document.getElementById('oc-orderer').textContent='주문자: '+curOrderer;
+  var totalQty=0;
+  var html='';
+  // 거래처별 그룹핑
+  var bySup={};
+  items.forEach(function(it){var sup=it.supplier||'기타';if(!bySup[sup])bySup[sup]=[];bySup[sup].push(it);totalQty+=it.qty;});
+  Object.keys(bySup).forEach(function(sup){
+    html+='<div style="margin-top:8px"><span style="font-size:10px;font-weight:700;color:#1a4e8a;background:#e8f0fb;padding:2px 7px;border-radius:4px">'+sup+'</span>';
+    bySup[sup].forEach(function(it){
+      html+='<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #f2f2f2;font-size:12px"><span style="color:#333;flex:1">'+it.name+'</span><span style="color:#185FA5;font-weight:700">×'+it.qty+'</span></div>';
+    });
+    html+='</div>';
+  });
+  document.getElementById('oc-items').innerHTML=html;
+  document.getElementById('oc-total').textContent='총 '+items.length+'종 · '+totalQty+'개';
+  document.getElementById('order-confirm-modal').style.display='flex';
+  document.getElementById('obf-bar').style.display='none';
+}
+function closeOrderConfirm(){document.getElementById('order-confirm-modal').style.display='none';document.getElementById('obf-bar').style.display='block';}
+function confirmAndOrder(){
+  closeOrderConfirm();
+  var items=getCartItems();
+  if(items.length===0)return;
   var itemsObj={};
   items.forEach(function(it){itemsObj[it.key]={name:it.name,supplier:it.supplier,brand:it.brand,cat:it.cat,qty:it.qty};});
   var o={shop:curShop,branch:curBranch,orderer:curOrderer,date:new Date().toISOString().slice(0,10),ts:Date.now(),items:itemsObj,status:'대기중',deliveryDate:''};
@@ -928,14 +1081,16 @@ function renderMy(){
   if(!list.length){el.innerHTML='<div class="empty">주문 내역이 없어요</div>';return;}
   el.innerHTML=list.map(function(o){
     var key=o.fk||String(o.id);
-    var bs=o.status==='대기중'?'sp':o.status==='배송중'?'si':o.status==='완료'?'sd':'sc';
+    var bs=o.status==='대기중'?'sp':o.status==='배송중'?'si':o.status==='완료'?'sd':o.status==='환불요청'?'sr':o.status==='환불완료'?'src':'sc';
     var canEdit=o.status==='대기중';
+    var canRefund=o.status==='완료';
     var delHtml='';
     if(o.deliveryDate){
       delHtml='<div style="margin-top:4px">'+(o.deliveryDate==='확인불가'?'<span class="del-na">배송일: 확인 불가</span>':'<span class="del-date">예상 배송일: '+o.deliveryDate+'</span>')+'</div>';
     }
     var editBtns=canEdit?'<div class="ofoot"><div class="abtn red" onclick="cancelOrder(\''+key+'\')">주문 취소</div><div class="abtn pri" onclick="openEditModal(\''+key+'\')">주문 수정</div></div>':'';
-    return'<div class="oitem"><div style="flex:1"><div class="obr">'+o.date+' 주문'+(o.orderer?' · ✍️ '+o.orderer:'')+'</div><div class="odt">'+isum(o.items)+'</div>'+delHtml+'<div style="margin-top:4px"><span class="bdg '+bs+'">'+o.status+'</span></div>'+editBtns+'</div></div>';
+    var refundBtn=canRefund?'<div class="ofoot"><div class="abtn red" onclick="requestRefund(\''+key+'\')">환불 요청</div></div>':'';
+    return'<div class="oitem"><div style="flex:1"><div class="obr">'+o.date+' 주문'+(o.orderer?' · ✍️ '+o.orderer:'')+'</div><div class="odt">'+isum(o.items)+'</div>'+delHtml+'<div style="margin-top:4px"><span class="bdg '+bs+'">'+o.status+'</span></div>'+editBtns+refundBtn+'</div></div>';
   }).join('');
 }
 function cancelOrder(key){
@@ -960,25 +1115,188 @@ function onShopFilter(){
 }
 
 function renderHQ(){
-  var sf=document.getElementById('fs').value,bf=document.getElementById('fb').value,stf=document.getElementById('fst').value;
-  var list=orders.slice().sort(function(a,b){return(b.ts||0)-(a.ts||0);});
-  document.getElementById('hqsub').textContent='대기 '+list.filter(function(o){return o.status==='대기중';}).length+'건';
+  var sf=document.getElementById('fs').value,bf=document.getElementById('fb').value;
+  var list=orders.filter(function(o){return o.status!=='완료';}).sort(function(a,b){return(b.ts||0)-(a.ts||0);});
+  document.getElementById('hqsub').textContent='대기 '+list.filter(function(o){return o.status==='대기중';}).length+'건 · 배송중 '+list.filter(function(o){return o.status==='배송중';}).length+'건';
   if(sf)list=list.filter(function(o){return o.shop===sf;});
   if(bf)list=list.filter(function(o){return o.branch===bf;});
-  if(stf)list=list.filter(function(o){return o.status===stf;});
   var el=document.getElementById('hqlist');
   if(!list.length){el.innerHTML='<div class="empty">해당 조건의 주문이 없어요</div>';return;}
   el.innerHTML=list.map(function(o){
-    var key=o.fk||o.id,bs=o.status==='대기중'?'sp':o.status==='배송중'?'si':o.status==='완료'?'sd':'sc',sc=o.shop==='DAY:MEAN'?'dm':'et';
+    var key=o.fk||o.id,bs=o.status==='대기중'?'sp':'si',sc=o.shop==='DAY:MEAN'?'dm':'et';
     var delHtml='';
     if(o.deliveryDate){delHtml='<span style="margin-left:6px">'+(o.deliveryDate==='확인불가'?'<span class="del-na">배송일: 확인 불가</span>':'<span class="del-date">배송일: '+o.deliveryDate+'</span>')+'</span>';}
+    var itemsBySup={};
+    if(o.items)Object.keys(o.items).forEach(function(k){var it=o.items[k];var sup=it.supplier||'기타';if(!itemsBySup[sup])itemsBySup[sup]=[];itemsBySup[sup].push(it);});
+    var itemsHtml=Object.keys(itemsBySup).map(function(sup){
+      var items=itemsBySup[sup];
+      return '<div style="margin-top:6px"><span style="font-size:10px;font-weight:700;color:#1a4e8a;background:#e8f0fb;padding:2px 7px;border-radius:4px">'+sup+'</span>'
+        +'<div style="font-size:11.5px;color:#555;margin-top:4px;line-height:1.7;padding-left:2px">'+items.map(function(it){return it.name+' <b style="color:#1a1a1a">×'+it.qty+'</b>';}).join('<br>')+'</div></div>';
+    }).join('');
     var f='';
-    if(o.status==='대기중')f='<div class="ofoot"><div class="abtn red" data-key="'+key+'" data-st="취소">거절</div><div class="abtn pri" onclick="openConfirmModal(\''+key+'\')">발주 확정</div></div>';
-    if(o.status==='배송중')f='<div class="ofoot"><div class="abtn org" data-key="'+key+'" onclick="revertOrder(this.dataset.key)">발주취소</div><div class="abtn pri" data-key="'+key+'" data-st="완료">배송 완료</div></div>';
-    if(o.status==='완료')f='<div class="ofoot"><div class="abtn org" data-key="'+key+'" onclick="revertOrder(this.dataset.key)">발주취소</div></div>';
-    return'<div class="oitem"><div style="flex:1;min-width:0"><div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:3px"><span class="obr">'+o.branch+'</span><span class="shopbdg '+sc+'">'+o.shop+'</span>'+(o.orderer?'<span style="font-size:11px;color:#555">✍️ '+o.orderer+'</span>':'')+'<span class="bdg '+bs+'">'+o.status+'</span>'+(o.status==='대기중'?'<span class="newbdg">NEW</span>':'')+delHtml+'</div><div class="odt">'+o.date+' · '+isum(o.items)+'</div>'+f+'</div></div>';
+    if(o.status==='대기중')f='<div class="ofoot"><div class="abtn red" data-act="reject" data-key="'+key+'">거절</div><div class="abtn pri" data-act="confirm" data-key="'+key+'">발주 확정</div></div>';
+    if(o.status==='배송중')f='<div class="ofoot"><div class="abtn org" data-act="revert" data-key="'+key+'">발주취소</div><div class="abtn pri" data-act="done" data-key="'+key+'">배송 완료</div></div>';
+    return'<div class="oitem"><div style="flex:1;min-width:0"><div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:3px"><span class="obr">'+o.branch+'</span><span class="shopbdg '+sc+'">'+o.shop+'</span>'+(o.orderer?'<span style="font-size:11px;color:#555">✍️ '+o.orderer+'</span>':'')+'<span class="bdg '+bs+'">'+o.status+'</span>'+(o.status==='대기중'?'<span class="newbdg">NEW</span>':'')+delHtml+'</div><div style="font-size:11px;color:#aaa;margin-bottom:2px">'+o.date+'</div>'+itemsHtml+f+'</div></div>';
   }).join('');
-  document.querySelectorAll('#hqlist .abtn[data-key]').forEach(function(btn){btn.onclick=function(){updSt(btn.dataset.key,btn.dataset.st);};});
+  document.querySelectorAll('#hqlist [data-act]').forEach(function(btn){
+    btn.onclick=function(e){e.stopPropagation();var key=btn.dataset.key,act=btn.dataset.act;
+      if(act==='reject')updSt(key,'취소');
+      else if(act==='confirm')openConfirmModal(key);
+      else if(act==='revert')revertOrder(key);
+      else if(act==='done')updSt(key,'완료');
+    };
+  });
+}
+// ── 배송 완료 목록 ──
+function initCompDate(){
+  var now=new Date(),y=now.getFullYear(),m=String(now.getMonth()+1).padStart(2,'0');
+  document.getElementById('comp-from').value=y+'-'+m+'-01';
+  document.getElementById('comp-to').value=now.toISOString().slice(0,10);
+}
+function setCompRange(t){
+  var now=new Date(),y=now.getFullYear(),m=now.getMonth(),d=now.getDate();
+  var from,to=now.toISOString().slice(0,10);
+  if(t==='today'){from=to;}
+  else if(t==='yesterday'){var yd=new Date(y,m,d-1);from=to=yd.toISOString().slice(0,10);}
+  else if(t==='week'){from=new Date(y,m,d-7).toISOString().slice(0,10);}
+  else if(t==='month'){from=y+'-'+String(m+1).padStart(2,'0')+'-01';}
+  else if(t==='prevmonth'){var pm=new Date(y,m-1,1);var pmEnd=new Date(y,m,0);from=pm.toISOString().slice(0,10);to=pmEnd.toISOString().slice(0,10);}
+  else if(t==='3month'){from=new Date(y,m-2,1).toISOString().slice(0,10);}
+  else if(t==='h1'){from=y+'-01-01';to=y+'-06-30';}
+  else if(t==='h2'){from=y+'-07-01';to=y+'-12-31';}
+  else if(t==='year'){from=y+'-01-01';}
+  document.getElementById('comp-from').value=from;
+  document.getElementById('comp-to').value=to;
+  renderCompleted();
+}
+function renderCompleted(){
+  var from=document.getElementById('comp-from').value,to=document.getElementById('comp-to').value;
+  var list=orders.filter(function(o){return o.status==='완료'&&o.date&&o.date>=from&&o.date<=to;}).sort(function(a,b){return(b.ts||0)-(a.ts||0);});
+  document.getElementById('comp-sub').textContent=from+' ~ '+to+' · '+list.length+'건';
+  var el=document.getElementById('comp-list');
+  if(!list.length){el.innerHTML='<div class="empty">해당 기간의 배송 완료 건이 없어요</div>';return;}
+  el.innerHTML=list.map(function(o){
+    var key=o.fk||o.id,sc=o.shop==='DAY:MEAN'?'dm':'et';
+    var delHtml=o.deliveryDate&&o.deliveryDate!=='확인불가'?'<span class="del-date">배송일: '+o.deliveryDate+'</span>':'';
+    var itemsBySup={};
+    if(o.items)Object.keys(o.items).forEach(function(k){var it=o.items[k];var sup=it.supplier||'기타';if(!itemsBySup[sup])itemsBySup[sup]=[];itemsBySup[sup].push(it);});
+    var itemsHtml=Object.keys(itemsBySup).map(function(sup){
+      return '<div style="margin-top:6px"><span style="font-size:10px;font-weight:700;color:#1a4e8a;background:#e8f0fb;padding:2px 7px;border-radius:4px">'+sup+'</span>'
+        +'<div style="font-size:11.5px;color:#555;margin-top:4px;line-height:1.7;padding-left:2px">'+itemsBySup[sup].map(function(it){return it.name+' <b style="color:#1a1a1a">×'+it.qty+'</b>';}).join('<br>')+'</div></div>';
+    }).join('');
+    return'<div class="oitem"><div style="flex:1;min-width:0"><div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:3px"><span class="obr">'+o.branch+'</span><span class="shopbdg '+sc+'">'+o.shop+'</span>'+(o.orderer?'<span style="font-size:11px;color:#555">✍️ '+o.orderer+'</span>':'')+'<span class="bdg sd">완료</span>'+delHtml+'</div><div style="font-size:11px;color:#aaa;margin-bottom:2px">'+o.date+'</div>'+itemsHtml+'<div class="ofoot"><div class="abtn org" data-compact="revert" data-compkey="'+key+'">주문 취소</div><div class="abtn red" data-compact="refund" data-compkey="'+key+'">환불 요청</div></div></div></div>';
+  }).join('');
+  document.querySelectorAll('#comp-list [data-compkey]').forEach(function(btn){
+    btn.onclick=function(){
+      var key=btn.dataset.compkey,act=btn.dataset.compact;
+      if(act==='revert')revertOrder(key);
+      else if(act==='refund')requestRefund(key);
+    };
+  });
+}
+// ── 환불 요청 (모달 — 부분 환불 지원) ──
+var refundOrderKey='';
+var refundCartTemp={};
+
+function requestRefund(key){
+  refundOrderKey=key;
+  refundCartTemp={};
+  var o=orders.find(function(x){return(x.fk||String(x.id))===String(key);});
+  if(!o)return;
+  var html='';
+  Object.keys(o.items).forEach(function(k){
+    var it=o.items[k];
+    refundCartTemp[k]=0;
+    html+='<div class="pcard"><div class="pinfo"><div class="pname">'+it.name+'</div><div class="pmeta">'+it.supplier+' · '+it.brand+'</div><div style="font-size:10px;color:#aaa;margin-top:2px">주문 수량: '+it.qty+'</div></div>';
+    html+='<div class="qctl"><button class="qbtn" onclick="refundChg(\''+k+'\',-1)">−</button><span class="qnum" id="rq_'+k+'">0</span><button class="qbtn" onclick="refundChg(\''+k+'\',1)">+</button></div>';
+    html+='</div>';
+  });
+  document.getElementById('refund-items').innerHTML=html;
+  document.getElementById('refund-modal').style.display='flex';
+}
+function closeRefundModal(){document.getElementById('refund-modal').style.display='none';}
+function refundChg(k,d){
+  var o=orders.find(function(x){return(x.fk||String(x.id))===String(refundOrderKey);});
+  var max=o&&o.items&&o.items[k]?o.items[k].qty:0;
+  var nv=Math.max(0,Math.min(max,(refundCartTemp[k]||0)+d));
+  refundCartTemp[k]=nv;
+  var el=document.getElementById('rq_'+k);
+  if(el)el.textContent=nv;
+}
+function submitRefund(){
+  var o=orders.find(function(x){return(x.fk||String(x.id))===String(refundOrderKey);});
+  if(!o)return;
+  // 환불 수량 확인
+  var refundItems={};
+  var hasAny=false;
+  Object.keys(o.items).forEach(function(k){
+    var qty=refundCartTemp[k]||0;
+    if(qty>0){refundItems[k]=Object.assign({},o.items[k],{qty:qty});hasAny=true;}
+  });
+  if(!hasAny){alert('환불할 제품을 1개 이상 선택해주세요');return;}
+  closeRefundModal();
+  // 새 환불 요청 주문 생성
+  var refundOrder={shop:o.shop,branch:o.branch,orderer:o.orderer||'',date:new Date().toISOString().slice(0,10),ts:Date.now(),items:refundItems,status:'환불요청',deliveryDate:'',refundFrom:refundOrderKey,originalDate:o.date};
+  function done(){
+    loadOrders().then(function(){
+      var cp=document.querySelector('.pg.on');
+      if(cp&&cp.id==='pg-completed')renderCompleted();
+      if(cp&&cp.id==='pg-mystat')renderMy();
+      if(cp&&cp.id==='pg-refund')renderRefund();
+    });
+    alert('환불 요청이 접수되었어요');
+  }
+  if(useFB)fbPost('/orders',refundOrder).then(done).catch(function(){alert('환불 요청 실패');});
+  else{var l=getL();l.push(Object.assign({},refundOrder,{id:Date.now()}));saveL(l);orders=l;done();}
+}
+// ── 환불 관리 렌더 ──
+function renderRefund(){
+  var pending=orders.filter(function(o){return o.status==='환불요청';}).sort(function(a,b){return(b.ts||0)-(a.ts||0);});
+  var done=orders.filter(function(o){return o.status==='환불완료';}).sort(function(a,b){return(b.ts||0)-(a.ts||0);});
+  document.getElementById('refund-sub').textContent='요청 '+pending.length+'건 · 완료 '+done.length+'건';
+  document.getElementById('refund-stats').innerHTML='<div class="scard"><div class="slbl">환불 요청</div><div class="sval" style="color:#dc3545">'+pending.length+'<span class="sunit"> 건</span></div></div><div class="scard"><div class="slbl">환불 완료</div><div class="sval">'+done.length+'<span class="sunit"> 건</span></div></div>';
+  // 대기 목록
+  var pel=document.getElementById('refund-pending');
+  if(!pending.length){pel.innerHTML='<div class="empty">환불 요청이 없어요</div>';}
+  else{pel.innerHTML=pending.map(function(o){return renderRefundItem(o,true);}).join('');
+    document.querySelectorAll('#refund-pending [data-ract]').forEach(function(btn){
+      btn.onclick=function(){
+        var key=btn.dataset.rkey,act=btn.dataset.ract;
+        if(act==='approve')processRefund(key,'환불완료');
+        else if(act==='reject')processRefund(key,'완료');
+      };
+    });
+  }
+  // 완료 목록
+  var del=document.getElementById('refund-done');
+  if(!done.length){del.innerHTML='<div class="empty">처리된 환불이 없어요</div>';}
+  else{del.innerHTML=done.map(function(o){return renderRefundItem(o,false);}).join('');}
+}
+function renderRefundItem(o,showBtns){
+  var key=o.fk||o.id,sc=o.shop==='DAY:MEAN'?'dm':'et';
+  var bs=o.status==='환불요청'?'sr':'src';
+  var origDate=o.originalDate?'<span style="font-size:10px;color:#888;margin-left:4px">원주문: '+o.originalDate+'</span>':'';
+  var itemsBySup={};
+  if(o.items)Object.keys(o.items).forEach(function(k){var it=o.items[k];var sup=it.supplier||'기타';if(!itemsBySup[sup])itemsBySup[sup]=[];itemsBySup[sup].push(it);});
+  var itemsHtml=Object.keys(itemsBySup).map(function(sup){
+    return '<div style="margin-top:6px"><span style="font-size:10px;font-weight:700;color:#dc3545;background:#f8d7da;padding:2px 7px;border-radius:4px">환불 · '+sup+'</span>'
+      +'<div style="font-size:11.5px;color:#555;margin-top:4px;line-height:1.7;padding-left:2px">'+itemsBySup[sup].map(function(it){return it.name+' <b style="color:#dc3545">×'+it.qty+'</b>';}).join('<br>')+'</div></div>';
+  }).join('');
+  var f=showBtns?'<div class="ofoot"><div class="abtn" data-ract="reject" data-rkey="'+key+'">거절 (복구)</div><div class="abtn red" data-ract="approve" data-rkey="'+key+'">환불 승인</div></div>':'';
+  return'<div class="oitem"><div style="flex:1;min-width:0"><div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:3px"><span class="obr">'+o.branch+'</span><span class="shopbdg '+sc+'">'+o.shop+'</span>'+(o.orderer?'<span style="font-size:11px;color:#555">✍️ '+o.orderer+'</span>':'')+'<span class="bdg '+bs+'">'+o.status+'</span></div><div style="font-size:11px;color:#aaa;margin-bottom:2px">'+o.date+origDate+'</div>'+itemsHtml+f+'</div></div>';
+}
+function processRefund(key,newStatus){
+  var msg=newStatus==='환불완료'?'환불을 승인하시겠어요?':'환불 요청을 거절하시겠어요? (요청이 삭제됩니다)';
+  if(!confirm(msg))return;
+  if(newStatus==='환불완료'){
+    var patch={status:'환불완료'};
+    if(useFB){fbPatch('/orders/'+key,patch).then(function(){loadOrders().then(renderRefund);}).catch(function(){alert('처리 실패');});}
+    else{var l=getL(),idx=l.findIndex(function(o){return String(o.id)===String(key);});if(idx<0)return;Object.assign(l[idx],patch);saveL(l);orders=l;renderRefund();}
+  } else {
+    // 거절 → 환불 요청 건 삭제
+    if(useFB){fbDel('/orders/'+key).then(function(){loadOrders().then(renderRefund);}).catch(function(){alert('처리 실패');});}
+    else{var l=getL(),idx=l.findIndex(function(o){return String(o.id)===String(key);});if(idx<0)return;l.splice(idx,1);saveL(l);orders=l;renderRefund();}
+  }
 }
 function updSt(key,st){
   if(useFB){(st==='취소'?fbDel('/orders/'+key):fbPatch('/orders/'+key,{status:st})).then(function(){loadOrders().then(renderHQ);}).catch(function(){alert('업데이트 실패');});}
@@ -987,8 +1305,8 @@ function updSt(key,st){
 function revertOrder(key){
   if(!confirm('발주를 취소하고 대기중 상태로 되돌릴까요?'))return;
   var patch={status:'대기중',deliveryDate:''};
-  if(useFB){fbPatch('/orders/'+key,patch).then(function(){loadOrders().then(renderHQ);}).catch(function(){alert('업데이트 실패');});}
-  else{var l=getL(),idx=l.findIndex(function(o){return String(o.id)===String(key);});if(idx<0)return;Object.assign(l[idx],patch);saveL(l);orders=l;renderHQ();}
+  if(useFB){fbPatch('/orders/'+key,patch).then(function(){loadOrders().then(function(){renderHQ();if(document.getElementById('pg-completed').classList.contains('on'))renderCompleted();});}).catch(function(){alert('업데이트 실패');});}
+  else{var l=getL(),idx=l.findIndex(function(o){return String(o.id)===String(key);});if(idx<0)return;Object.assign(l[idx],patch);saveL(l);orders=l;renderHQ();if(document.getElementById('pg-completed').classList.contains('on'))renderCompleted();}
 }
 // ── 통계 탭 전환 ──
 function initStatTabs(){
